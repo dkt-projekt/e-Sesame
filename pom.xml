@@ -46,6 +46,16 @@
 	<artifactId>sesame-rio-api</artifactId>
 	<version>2.7.9</version>
 </dependency>
+<dependency>
+	<groupId>org.openrdf.sesame</groupId>
+	<artifactId>sesame-runtime-osgi</artifactId>
+	<version>2.7.9</version>
+</dependency>
+<dependency>
+	<groupId>org.openrdf.sesame</groupId>
+	<artifactId>sesame-sail-nativerdf</artifactId>
+	<version>2.7.9</version>
+</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
