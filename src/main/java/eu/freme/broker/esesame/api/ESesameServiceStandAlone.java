@@ -44,6 +44,14 @@ public class ESesameServiceStandAlone extends BaseRestController {
 	@Autowired
 	ExceptionHandlerService exceptionHandlerService;
 
+	@RequestMapping(value = "/e-DKTBroker/sendQuery", method = {
+			RequestMethod.POST, RequestMethod.GET })
+	public String trainModel(
+			@RequestParam(value = "text", required = false) String text,
+            @RequestBody(required = false) String postBody) throws Exception {
+		return "Hemos recibido el texto: "+text;
+	}
+	
 	@RequestMapping(value = "/e-sesame/storeData", method = { RequestMethod.POST, RequestMethod.GET })
 	public ResponseEntity<String> storeData(
 			@RequestParam(value = "storageName", required = false) String storageName,

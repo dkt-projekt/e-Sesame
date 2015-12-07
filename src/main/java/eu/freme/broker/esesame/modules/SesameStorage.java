@@ -36,7 +36,6 @@ import org.openrdf.sail.nativerdf.NativeStore;
 
 import eu.freme.broker.esesame.exceptions.BadRequestException;
 import eu.freme.broker.esesame.exceptions.ExternalServiceFailedException;
-import eu.freme.broker.esesame.nif.NIF;
 import eu.freme.broker.filemanagement.FileFactory;
 import info.aduna.iteration.Iterations;
 
@@ -175,7 +174,7 @@ public class SesameStorage {
 				model.setNamespace("rdfs", RDFS.NAMESPACE);
 				model.setNamespace("xsd", XMLSchema.NAMESPACE);
 				model.setNamespace("foaf", FOAF.NAMESPACE);
-				model.setNamespace("nif", NIF.getURI());
+				model.setNamespace("nif", "");
 
 				StringWriter sw = new StringWriter();
 				//				Rio.write(model, System.out, RDFFormat.TURTLE);
@@ -232,7 +231,7 @@ public class SesameStorage {
 				model.setNamespace("rdfs", RDFS.NAMESPACE);
 				model.setNamespace("xsd", XMLSchema.NAMESPACE);
 				model.setNamespace("foaf", FOAF.NAMESPACE);
-				model.setNamespace("nif", NIF.getURI());
+				model.setNamespace("nif", "");
 
 				StringWriter sw = new StringWriter();
 				//Rio.write(model, System.out, RDFFormat.TURTLE);
