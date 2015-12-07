@@ -38,6 +38,7 @@ import org.springframework.core.io.ClassPathResource;
 import eu.freme.broker.esesame.exceptions.BadRequestException;
 import eu.freme.broker.esesame.exceptions.ExternalServiceFailedException;
 import eu.freme.broker.esesame.nif.NIF;
+import eu.freme.broker.filemanagement.FileFactory;
 import info.aduna.iteration.Iterations;
 
 /**
@@ -52,8 +53,12 @@ public class SesameStorage {
 	@SuppressWarnings("all")
 	public static String storeTriplets(String storageName, String data, String dataFormat) throws ExternalServiceFailedException {
 		try {
-			ClassPathResource cpr = new ClassPathResource(storageDirectory + storageName);
-			Repository rep = new SailRepository(new NativeStore(cpr.getFile()));
+			
+			File f = FileFactory.generateFileInstance(storageDirectory + storageName);
+			
+//			ClassPathResource cpr = new ClassPathResource(storageDirectory + storageName);
+//			Repository rep = new SailRepository(new NativeStore(cpr.getFile()));
+			Repository rep = new SailRepository(new NativeStore(f));
 			rep.initialize();
 
 			InputStream in = new ByteArrayInputStream(data.getBytes(StandardCharsets.UTF_8));
@@ -89,9 +94,13 @@ public class SesameStorage {
 	@SuppressWarnings("all")
 	public static String storeTriplet(String storageName, String sSubject, String sPredicate, String sObject, String sNameSpace) throws ExternalServiceFailedException {
 		try{
-			ClassPathResource cpr = new ClassPathResource(storageDirectory + storageName);
+			
+//			ClassPathResource cpr = new ClassPathResource(storageDirectory + storageName);
+//			Repository rep = new SailRepository(new NativeStore(cpr.getFile()));
 //			File fil = cpr.getFile();
-			File fil = new File(storageDirectory + "" + storageName);
+			//File fil = new File(storageDirectory + "" + storageName);
+
+			File fil = FileFactory.generateFileInstance(storageDirectory + storageName);
 			if(!fil.exists()){
 				fil.mkdir();
 				System.out.println("Dir created:");
@@ -127,18 +136,20 @@ public class SesameStorage {
 //			e.printStackTrace();
 //			throw new ExternalServiceFailedException(e.getMessage());
 //		}
-//		catch(IOException e){
-//			e.printStackTrace();
-//			throw new ExternalServiceFailedException(e.getMessage());
-//		}
+		catch(IOException e){
+			e.printStackTrace();
+			throw new ExternalServiceFailedException(e.getMessage());
+		}
 	}
 
 	@SuppressWarnings("all")
 	public static String retrieveTriplets(String storageName, String sSubject, String sPredicate, String sObject) throws ExternalServiceFailedException {
 		try{
-			ClassPathResource cpr = new ClassPathResource(storageDirectory + storageName);
+			
+//			ClassPathResource cpr = new ClassPathResource(storageDirectory + storageName);
 //			File fil = cpr.getFile();
-			File fil = new File(storageDirectory + "" + storageName);
+//			File fil = new File(storageDirectory + "" + storageName);
+			File fil = FileFactory.generateFileInstance(storageDirectory + storageName);
 			if(!fil.exists()){
 				throw new ExternalServiceFailedException("Triplet store does not exist.!!!");
 			}
@@ -181,10 +192,10 @@ public class SesameStorage {
 //			e.printStackTrace();
 //			throw new ExternalServiceFailedException(e.getMessage());
 //		}
-//		catch(IOException e){
-//			e.printStackTrace();
-//			throw new ExternalServiceFailedException(e.getMessage());
-//		}
+		catch(IOException e){
+			e.printStackTrace();
+			throw new ExternalServiceFailedException(e.getMessage());
+		}
 		catch (RepositoryException e) {
 			e.printStackTrace();
 			throw new ExternalServiceFailedException(e.getMessage());
@@ -197,8 +208,10 @@ public class SesameStorage {
 
 	public static String retrieveTriplets(String storageName, String inputRDFData) throws ExternalServiceFailedException {
 		try{
-			ClassPathResource cpr = new ClassPathResource(storageDirectory + storageName);
-			Repository rep = new SailRepository(new NativeStore(cpr.getFile(), ""));
+//			ClassPathResource cpr = new ClassPathResource(storageDirectory + storageName);
+
+			File fil = FileFactory.generateFileInstance(storageDirectory + storageName);
+			Repository rep = new SailRepository(new NativeStore(fil, ""));
 			rep.initialize();
 
 			RepositoryConnection conn = rep.getConnection();
@@ -252,8 +265,9 @@ public class SesameStorage {
 
 	public static String retrieveTripletsFromSPARQL(String storageName, String inputSPARQLData) throws ExternalServiceFailedException {
 		try{
-			ClassPathResource cpr = new ClassPathResource(storageDirectory + storageName);
-			Repository rep = new SailRepository(new NativeStore(cpr.getFile(), ""));
+//			ClassPathResource cpr = new ClassPathResource(storageDirectory + storageName);
+			File fil = FileFactory.generateFileInstance(storageDirectory + storageName);
+			Repository rep = new SailRepository(new NativeStore(fil, ""));
 			rep.initialize();
 
 			RepositoryConnection conn = rep.getConnection();
@@ -301,7 +315,7 @@ public class SesameStorage {
 
 	public static void main(String[] args) throws Exception{
 		
-		System.out.println(SesameStorage.storeTriplet("triplet2", "http://dkt.dfki.de/file2.txt", "http://dkt.dfki.de/ontology#isPartOf", "http://dkt.dfki.de/file3.txt", ""));
+//		System.out.println(SesameStorage.storeTriplet("triplet2", "http://dkt.dfki.de/file2.txt", "http://dkt.dfki.de/ontology#isPartOf", "http://dkt.dfki.de/file3.txt", ""));
 		System.out.println(SesameStorage.retrieveTriplets("triplet2", null, null, null));
 	
 	}
