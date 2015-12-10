@@ -34,6 +34,11 @@ import org.openrdf.rio.RDFParseException;
 import org.openrdf.rio.Rio;
 import org.openrdf.sail.nativerdf.NativeStore;
 
+import com.hp.hpl.jena.rdf.model.ModelFactory;
+import com.hp.hpl.jena.rdf.model.Resource;
+import com.hp.hpl.jena.rdf.model.StmtIterator;
+import com.hp.hpl.jena.vocabulary.RDF;
+
 import eu.freme.broker.esesame.exceptions.BadRequestException;
 import eu.freme.broker.esesame.exceptions.ExternalServiceFailedException;
 import eu.freme.broker.filemanagement.FileFactory;
@@ -49,9 +54,8 @@ public class SesameStorage {
 	private static String storageDirectory = "C:\\Users\\jmschnei\\Desktop\\dkt-test\\sesame\\";
 
 	@SuppressWarnings("all")
-	public static String storeTriplets(String storageName, String data, String dataFormat) throws ExternalServiceFailedException {
+	public static String storeTripletsFromModel(String storageName, Model model) throws ExternalServiceFailedException {
 		try {
-			
 			File f = FileFactory.generateFileInstance(storageDirectory + storageName);
 			
 //			ClassPathResource cpr = new ClassPathResource(storageDirectory + storageName);
@@ -59,9 +63,44 @@ public class SesameStorage {
 			Repository rep = new SailRepository(new NativeStore(f));
 			rep.initialize();
 
+			RepositoryConnection conn = rep.getConnection();
+			try{
+				conn.add(model, null);
+			}
+			finally{
+				conn.close();
+				rep.shutDown();
+			}
+			return " It has been correctly added to the tripletSTore: "+storageName;
+		}
+		catch (RepositoryException e) {
+			e.printStackTrace();
+			throw new ExternalServiceFailedException(e.getMessage());
+		}
+		catch(FileNotFoundException e){
+			throw new BadRequestException(e.getMessage());
+		}
+		catch(IOException e){
+			throw new BadRequestException(e.getMessage());
+		}
+	}
+
+	@SuppressWarnings("all")
+	public static String storeTriplets(String storageName, String data, String dataFormat) throws ExternalServiceFailedException {
+		try {
+			File f = FileFactory.generateFileInstance(storageDirectory + storageName);
+			
+//			ClassPathResource cpr = new ClassPathResource(storageDirectory + storageName);
+//			Repository rep = new SailRepository(new NativeStore(cpr.getFile()));
+			Repository rep = new SailRepository(new NativeStore(f));
+			rep.initialize();
+
+			Model inputModel;
+
 			InputStream in = new ByteArrayInputStream(data.getBytes(StandardCharsets.UTF_8));
 			RDFFormat dFormat = RDFFormat.forMIMEType(dataFormat);
-			Model inputModel = Rio.parse(in, "", dFormat, null);
+			inputModel = Rio.parse(in, "", dFormat, null);
+			
 
 			RepositoryConnection conn = rep.getConnection();
 			try{

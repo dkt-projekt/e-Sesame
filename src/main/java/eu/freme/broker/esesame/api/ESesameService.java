@@ -1,13 +1,32 @@
 package eu.freme.broker.esesame.api;
 
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
+import java.util.List;
+
+import org.openrdf.model.Literal;
+import org.openrdf.model.Model;
+import org.openrdf.model.Statement;
+import org.openrdf.model.URI;
+import org.openrdf.model.ValueFactory;
+import org.openrdf.model.impl.LinkedHashModel;
+import org.openrdf.model.impl.ValueFactoryImpl;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
+import com.hp.hpl.jena.iri.IRI;
+import com.hp.hpl.jena.rdf.model.ModelFactory;
+
 import eu.freme.broker.esesame.exceptions.BadRequestException;
 import eu.freme.broker.esesame.exceptions.ExternalServiceFailedException;
 import eu.freme.broker.esesame.modules.SesameStorage;
+import eu.freme.broker.niftools.NIFReader;
+import eu.freme.common.conversion.rdf.JenaRDFConversionService;
+import eu.freme.common.conversion.rdf.RDFConstants.RDFSerialization;
+import eu.freme.common.conversion.rdf.RDFConversionService;
 
 /**
  * @author Julian Moreno Schneider julian.moreno_schneider@dfki.de
@@ -19,13 +38,64 @@ import eu.freme.broker.esesame.modules.SesameStorage;
 @Component
 public class ESesameService {
     
+	RDFConversionService rdfConversionService = new JenaRDFConversionService();
+
+	public static void main(String[] args) throws Exception {
+		String file = "/Users/jumo04/Documents/DFKI/DKT/dkt-test/debug.txt";
+		BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file), "utf-8"));
+		String line = br.readLine();
+		String text = "";
+		while(line!=null){
+			text += " " + line;
+			line = br.readLine();
+		}
+		br.close();
+
+		ESesameService service = new ESesameService();
+		
+		service.storeEntitiesFromString("", text, "NIF");
+		
+	}
+	
+	
     public ResponseEntity<String> storeEntitiesFromString(String storageName, String inputText, String inputDataMimeType)
-            throws ExternalServiceFailedException, BadRequestException {
+            throws ExternalServiceFailedException, BadRequestException, Exception {
         try {
-        	ESesameService.checkNotNullOrEmpty(storageName, "No Storage specified");
-        	ESesameService.checkNotNullOrEmpty(inputText, "No inputText specified");
+//        	ESesameService.checkNotNullOrEmpty(storageName, "No Storage specified");
+//        	ESesameService.checkNotNullOrEmpty(inputText, "No inputText specified");
         	
-       		String nifResult = SesameStorage.storeTriplets(storageName, inputText, inputDataMimeType);
+        	String nifResult;
+        	if(inputDataMimeType.equalsIgnoreCase("NIF")){
+        		
+        		com.hp.hpl.jena.rdf.model.Model jenaModel = ModelFactory.createDefaultModel();
+        		jenaModel = rdfConversionService.unserializeRDF(inputText, RDFSerialization.RDF_XML);
+
+        		String docURI = NIFReader.extractDocumentURI(jenaModel);
+        		List<String[]> list = NIFReader.extractEntities(jenaModel);
+
+                Model openrdfModel = new LinkedHashModel(); 
+                ValueFactory factory = ValueFactoryImpl.getInstance();
+                URI doc = factory.createURI(docURI);
+                URI mentions = factory.createURI("http://dkt.dfki.de/mentions");
+                URI isMentioned = factory.createURI("http://dkt.dfki.de/isMentioned");
+                URI hasText = factory.createURI("http://dkt.dfki.de/hasText");
+            
+                for (String[] entity : list) {
+                    URI entURI = factory.createURI(entity[0]);
+                    Literal entityText = factory.createLiteral(entity[1]);
+                    Statement st1 = factory.createStatement(entURI, hasText, entityText);
+                	openrdfModel.add(st1);
+                    Statement st2 = factory.createStatement(doc, mentions, entURI);
+                	openrdfModel.add(st2);
+                    Statement st3 = factory.createStatement(entURI, isMentioned, doc);
+                	openrdfModel.add(st3);
+				}
+//                return null;
+           		nifResult = SesameStorage.storeTripletsFromModel(storageName, openrdfModel);
+        	}
+        	else{
+           		nifResult = SesameStorage.storeTriplets(storageName, inputText, inputDataMimeType);
+        	}
        		
            	return ESesameService.successResponse(nifResult, "RDF/XML");
         } catch (BadRequestException e) {
