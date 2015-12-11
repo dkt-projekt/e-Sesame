@@ -17,6 +17,7 @@ import eu.freme.broker.esesame.exceptions.ExternalServiceFailedException;
 import eu.freme.broker.tools.ExceptionHandlerService;
 import eu.freme.broker.tools.NIFParameterFactory;
 import eu.freme.broker.tools.NIFParameterSet;
+import eu.freme.broker.tools.ParameterChecker;
 import eu.freme.broker.tools.RDFELinkSerializationFormats;
 import eu.freme.broker.tools.RDFSerializationFormats;
 import eu.freme.common.conversion.rdf.RDFConstants;
@@ -64,9 +65,9 @@ public class ESesameServiceStandAlone extends BaseRestController {
 			@RequestParam(value = "namespace", required = false) String nam,
             @RequestBody(required = false) String postBody) throws Exception {
 
-		ESesameService.checkNotNullOrEmpty(inputDataFormat, "input data type");
-		ESesameService.checkNotNullOrEmpty(inputDataMimeType, "input data type");
-		ESesameService.checkNotNullOrEmpty(storageName, "storage Name");
+		ParameterChecker.checkNotNullOrEmpty(inputDataFormat, "input data type");
+		ParameterChecker.checkNotNullOrEmpty(inputDataMimeType, "input data type");
+		ParameterChecker.checkNotNullOrEmpty(storageName, "storage Name");
 //		ESesameService.checkNotNullOrEmpty(inputDataType, "input Data");
         
         try {
@@ -113,8 +114,8 @@ public class ESesameServiceStandAlone extends BaseRestController {
 			@RequestParam(value = "obj", required = false) String obj,
             @RequestBody(required = false) String postBody) throws Exception {
 
-		ESesameService.checkNotNullOrEmpty(inputDataType, "input data type");
-		ESesameService.checkNotNullOrEmpty(inputDataType, "storage Name");
+		ParameterChecker.checkNotNullOrEmpty(inputDataType, "input data type");
+		ParameterChecker.checkNotNullOrEmpty(inputDataType, "storage Name");
 //		ESesameService.checkNotNullOrEmpty(inputDataType, "input Data");
         
         try {

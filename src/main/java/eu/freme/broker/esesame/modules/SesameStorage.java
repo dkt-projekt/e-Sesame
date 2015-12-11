@@ -50,14 +50,13 @@ import info.aduna.iteration.Iterations;
  */
 public class SesameStorage {
 
-//	private static String storageDirectory = "triplestore/";
-	private static String storageDirectory = "C:\\Users\\jmschnei\\Desktop\\dkt-test\\sesame\\";
+	private static String storageDirectory = "triplestore/";
+//	private static String storageDirectory = "C:\\Users\\jmschnei\\Desktop\\dkt-test\\sesame\\";
 
 	@SuppressWarnings("all")
 	public static String storeTripletsFromModel(String storageName, Model model) throws ExternalServiceFailedException {
 		try {
-			File f = FileFactory.generateFileInstance(storageDirectory + storageName);
-			
+			File f = FileFactory.generateOrCreateDirectoryInstance(storageDirectory + storageName);
 //			ClassPathResource cpr = new ClassPathResource(storageDirectory + storageName);
 //			Repository rep = new SailRepository(new NativeStore(cpr.getFile()));
 			Repository rep = new SailRepository(new NativeStore(f));
@@ -65,7 +64,9 @@ public class SesameStorage {
 
 			RepositoryConnection conn = rep.getConnection();
 			try{
-				conn.add(model, null);
+				for (Statement st : model) {
+					conn.add(st.getSubject(),st.getPredicate(),st.getObject());
+				}
 			}
 			finally{
 				conn.close();
@@ -348,6 +349,14 @@ public class SesameStorage {
 			e.printStackTrace();
 			throw new ExternalServiceFailedException(e.getMessage());
 		}
+	}
+	
+	public static String getStorageDirectory() {
+		return storageDirectory;
+	}
+
+	public static void setStorageDirectory(String storageDirectory) {
+		SesameStorage.storageDirectory = storageDirectory;
 	}
 
 	public static void main(String[] args) throws Exception{

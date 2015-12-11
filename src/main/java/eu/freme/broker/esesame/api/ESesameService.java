@@ -17,13 +17,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
-import com.hp.hpl.jena.iri.IRI;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 
 import eu.freme.broker.esesame.exceptions.BadRequestException;
 import eu.freme.broker.esesame.exceptions.ExternalServiceFailedException;
 import eu.freme.broker.esesame.modules.SesameStorage;
 import eu.freme.broker.niftools.NIFReader;
+import eu.freme.broker.tools.ParameterChecker;
+import eu.freme.broker.tools.ResponseGenerator;
 import eu.freme.common.conversion.rdf.JenaRDFConversionService;
 import eu.freme.common.conversion.rdf.RDFConstants.RDFSerialization;
 import eu.freme.common.conversion.rdf.RDFConversionService;
@@ -40,6 +41,17 @@ public class ESesameService {
     
 	RDFConversionService rdfConversionService = new JenaRDFConversionService();
 
+	private String storageLocation;
+	
+	public ESesameService() {
+	}
+	
+	public ESesameService(String storageLocation) {
+		super();
+		this.storageLocation = storageLocation;
+		SesameStorage.setStorageDirectory(storageLocation);
+	}
+
 	public static void main(String[] args) throws Exception {
 		String file = "/Users/jumo04/Documents/DFKI/DKT/dkt-test/debug.txt";
 		BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file), "utf-8"));
@@ -51,18 +63,19 @@ public class ESesameService {
 		}
 		br.close();
 
-		ESesameService service = new ESesameService();
+		ESesameService service = new ESesameService("/Users/jumo04/Documents/DFKI/DKT/dkt-test/Weka/storage/");
+		service.storeEntitiesFromString("test", text, "NIF");
 		
-		service.storeEntitiesFromString("", text, "NIF");
-		
+		System.out.println(service.retrieveEntitiesFromTriplet("test", null, null, null));
+
 	}
 	
 	
     public ResponseEntity<String> storeEntitiesFromString(String storageName, String inputText, String inputDataMimeType)
             throws ExternalServiceFailedException, BadRequestException, Exception {
         try {
-//        	ESesameService.checkNotNullOrEmpty(storageName, "No Storage specified");
-//        	ESesameService.checkNotNullOrEmpty(inputText, "No inputText specified");
+        	ParameterChecker.checkNotNullOrEmpty(storageName, "No Storage specified");
+        	ParameterChecker.checkNotNullOrEmpty(inputText, "No inputText specified");
         	
         	String nifResult;
         	if(inputDataMimeType.equalsIgnoreCase("NIF")){
@@ -79,16 +92,20 @@ public class ESesameService {
                 URI mentions = factory.createURI("http://dkt.dfki.de/mentions");
                 URI isMentioned = factory.createURI("http://dkt.dfki.de/isMentioned");
                 URI hasText = factory.createURI("http://dkt.dfki.de/hasText");
+                URI isTypeOf = factory.createURI("http://dkt.dfki.de/isTypeOf");
             
                 for (String[] entity : list) {
                     URI entURI = factory.createURI(entity[0]);
                     Literal entityText = factory.createLiteral(entity[1]);
+                    URI entTypeURI = factory.createURI(entity[2]);
                     Statement st1 = factory.createStatement(entURI, hasText, entityText);
                 	openrdfModel.add(st1);
                     Statement st2 = factory.createStatement(doc, mentions, entURI);
                 	openrdfModel.add(st2);
                     Statement st3 = factory.createStatement(entURI, isMentioned, doc);
                 	openrdfModel.add(st3);
+                    Statement st4 = factory.createStatement(entURI, isTypeOf, entTypeURI);
+                	openrdfModel.add(st4);
 				}
 //                return null;
            		nifResult = SesameStorage.storeTripletsFromModel(storageName, openrdfModel);
@@ -97,7 +114,7 @@ public class ESesameService {
            		nifResult = SesameStorage.storeTriplets(storageName, inputText, inputDataMimeType);
         	}
        		
-           	return ESesameService.successResponse(nifResult, "RDF/XML");
+           	return ResponseGenerator.successResponse(nifResult, "RDF/XML");
         } catch (BadRequestException e) {
             throw e;
     	} catch (ExternalServiceFailedException e2) {
@@ -108,14 +125,14 @@ public class ESesameService {
     public ResponseEntity<String> storeEntitiesFromTriplet(String storageName, String subject, String predicate, String object, String namespace)
             throws ExternalServiceFailedException, BadRequestException {
         try {
-        	ESesameService.checkNotNullOrEmpty(subject, "subject");
-        	ESesameService.checkNotNullOrEmpty(predicate, "predicate");
-        	ESesameService.checkNotNullOrEmpty(object, "object");
-        	ESesameService.checkNotNullOrEmpty(storageName, "No Storage specified");
+        	ParameterChecker.checkNotNullOrEmpty(subject, "subject");
+        	ParameterChecker.checkNotNullOrEmpty(predicate, "predicate");
+        	ParameterChecker.checkNotNullOrEmpty(object, "object");
+        	ParameterChecker.checkNotNullOrEmpty(storageName, "No Storage specified");
 
         	String nifResult = SesameStorage.storeTriplet(storageName, subject, predicate, object, namespace);
        		
-           	return ESesameService.successResponse(nifResult, "RDF/XML");
+           	return ResponseGenerator.successResponse(nifResult, "RDF/XML");
         } catch (BadRequestException e) {
             throw e;
     	} catch (ExternalServiceFailedException e2) {
@@ -126,12 +143,12 @@ public class ESesameService {
     public ResponseEntity<String> retrieveEntitiesFromString(String storageName, String inputRDFData)
             throws ExternalServiceFailedException, BadRequestException {
         try {
-        	ESesameService.checkNotNullOrEmpty(storageName, "Storage Name");
-        	ESesameService.checkNotNullOrEmpty(inputRDFData, "inputRDFData");
+        	ParameterChecker.checkNotNullOrEmpty(storageName, "Storage Name");
+        	ParameterChecker.checkNotNullOrEmpty(inputRDFData, "inputRDFData");
 
        		String nifResult = SesameStorage.retrieveTriplets(storageName, inputRDFData);
        		
-           	return ESesameService.successResponse(nifResult, "RDF/XML");
+           	return ResponseGenerator.successResponse(nifResult, "RDF/XML");
         } catch (BadRequestException e) {
             throw e;
     	} 
@@ -140,12 +157,12 @@ public class ESesameService {
     public ResponseEntity<String> retrieveEntitiesFromSPARQL(String storageName, String inputSPARQLQuery)
             throws ExternalServiceFailedException, BadRequestException {
         try {
-        	ESesameService.checkNotNullOrEmpty(storageName, "Storage Name");
-        	ESesameService.checkNotNullOrEmpty(inputSPARQLQuery, "inputRDFData");
+        	ParameterChecker.checkNotNullOrEmpty(storageName, "Storage Name");
+        	ParameterChecker.checkNotNullOrEmpty(inputSPARQLQuery, "inputRDFData");
 
        		String nifResult = SesameStorage.retrieveTripletsFromSPARQL(storageName, inputSPARQLQuery);
        		
-           	return ESesameService.successResponse(nifResult, "RDF/JSON");
+           	return ResponseGenerator.successResponse(nifResult, "RDF/JSON");
         } catch (BadRequestException e) {
             throw e;
     	} 
@@ -155,28 +172,18 @@ public class ESesameService {
             throws ExternalServiceFailedException, BadRequestException {
         try {
         	if( (subject==null || subject.equals("")) && (predicate==null || predicate.equals("")) && (object==null || object.equals("")) ){
-                throw new BadRequestException("One parameter must be different from NULL or EMPTY.");
+                //throw new BadRequestException("One parameter must be different from NULL or EMPTY.");
+                System.out.println("[WARNING] Empty parameters in this method [retrieveEntitiesFromTriplet] should be only used for testing purposes.\n"
+                		+ " Consider that it retrieves the whole triple store and it can be resources and time consuming.");
         	}
-        	ESesameService.checkNotNullOrEmpty(storageName, "Storage Name");
+        	ParameterChecker.checkNotNullOrEmpty(storageName, "Storage Name");
 
        		String nifResult = SesameStorage.retrieveTriplets(storageName, subject, predicate, object);
        		
-           	return ESesameService.successResponse(nifResult, "RDF/XML");
+           	return ResponseGenerator.successResponse(nifResult, "RDF/XML");
         } catch (BadRequestException e) {
             throw e;
     	} 
     }
-    
-    public static void checkNotNullOrEmpty (String param, String message) throws BadRequestException {
-    	if( param==null || param.equals("") ){
-            throw new BadRequestException("No "+message+" param specified");
-    	}
-    }
 
-    public static ResponseEntity<String> successResponse(String body, String contentType) throws BadRequestException {
-    	HttpHeaders responseHeaders = new HttpHeaders();
-    	responseHeaders.add("Content-Type", contentType);
-    	ResponseEntity<String> response = new ResponseEntity<String>(body, responseHeaders, HttpStatus.OK);
-    	return response;
-    }
 }
