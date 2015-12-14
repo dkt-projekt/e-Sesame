@@ -8,10 +8,10 @@ import eu.freme.broker.tools.StarterHelper;
 
 @SpringBootApplication
 @Import(ESesameConfig.class)
-public class Starter {
+public class ESesameStarter {
     public static void main(String[] args) {
 		String[] newArgs = StarterHelper.addProfile(args, "broker");
 
-        SpringApplication.run(Starter.class, newArgs);
+        SpringApplication.run(ESesameStarter.class, newArgs);
     }
 }
