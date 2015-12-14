@@ -41,7 +41,7 @@ public class ESesameService {
     
 	RDFConversionService rdfConversionService = new JenaRDFConversionService();
 
-	private String storageLocation;
+	private String storageLocation="/Users/jumo04/Documents/DFKI/DKT/dkt-test/testComplete/sesameStorage";
 	
 	public ESesameService() {
 	}
@@ -53,20 +53,21 @@ public class ESesameService {
 	}
 
 	public static void main(String[] args) throws Exception {
-		String file = "/Users/jumo04/Documents/DFKI/DKT/dkt-test/debug.txt";
-		BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file), "utf-8"));
-		String line = br.readLine();
-		String text = "";
-		while(line!=null){
-			text += " " + line;
-			line = br.readLine();
-		}
-		br.close();
-
-		ESesameService service = new ESesameService("/Users/jumo04/Documents/DFKI/DKT/dkt-test/Weka/storage/");
-		service.storeEntitiesFromString("test", text, "NIF");
-		
-		System.out.println(service.retrieveEntitiesFromTriplet("test", null, null, null));
+//		String file = "/Users/jumo04/Documents/DFKI/DKT/dkt-test/debug.txt";
+//		BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file), "utf-8"));
+//		String line = br.readLine();
+//		String text = "";
+//		while(line!=null){
+//			text += " " + line;
+//			line = br.readLine();
+//		}
+//		br.close();
+//
+//		ESesameService service = new ESesameService("/Users/jumo04/Documents/DFKI/DKT/dkt-test/Weka/storage/");
+//		service.storeEntitiesFromString("test", text, "NIF");
+	
+		ESesameService service = new ESesameService();
+		System.out.println(service.retrieveEntitiesFromTriplet("test1/", null, null, null));
 
 	}
 	

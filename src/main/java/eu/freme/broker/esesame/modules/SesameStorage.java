@@ -50,7 +50,7 @@ import info.aduna.iteration.Iterations;
  */
 public class SesameStorage {
 
-	private static String storageDirectory = "triplestore/";
+	private static String storageDirectory="/Users/jumo04/Documents/DFKI/DKT/dkt-test/testComplete/sesameStorage/";
 //	private static String storageDirectory = "C:\\Users\\jmschnei\\Desktop\\dkt-test\\sesame\\";
 
 	@SuppressWarnings("all")
@@ -218,7 +218,7 @@ public class SesameStorage {
 
 				StringWriter sw = new StringWriter();
 				//				Rio.write(model, System.out, RDFFormat.TURTLE);
-				Rio.write(model, sw, RDFFormat.TURTLE);
+				Rio.write(model, sw, RDFFormat.RDFXML);
 				return sw.toString();
 			}
 			finally{
