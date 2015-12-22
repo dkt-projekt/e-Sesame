@@ -67,7 +67,8 @@ public class ESesameService {
 //		service.storeEntitiesFromString("test", text, "NIF");
 	
 		ESesameService service = new ESesameService();
-		System.out.println(service.retrieveEntitiesFromTriplet("test1/", null, null, null));
+//		System.out.println(service.retrieveEntitiesFromTriplet("testComplete/", null, null, null));
+		service.retrieveEntitiesFromTriplet("testComplete/", null, null, null);
 
 	}
 	
@@ -95,21 +96,32 @@ public class ESesameService {
                 URI hasText = factory.createURI("http://dkt.dfki.de/hasText");
                 URI isTypeOf = factory.createURI("http://dkt.dfki.de/isTypeOf");
             
-                for (String[] entity : list) {
-                    URI entURI = factory.createURI(entity[0]);
-                    Literal entityText = factory.createLiteral(entity[1]);
-                    URI entTypeURI = factory.createURI(entity[2]);
-                    Statement st1 = factory.createStatement(entURI, hasText, entityText);
-                	openrdfModel.add(st1);
-                    Statement st2 = factory.createStatement(doc, mentions, entURI);
-                	openrdfModel.add(st2);
-                    Statement st3 = factory.createStatement(entURI, isMentioned, doc);
-                	openrdfModel.add(st3);
-                    Statement st4 = factory.createStatement(entURI, isTypeOf, entTypeURI);
-                	openrdfModel.add(st4);
-				}
-//                return null;
-           		nifResult = SesameStorage.storeTripletsFromModel(storageName, openrdfModel);
+                if(list!=null){
+	                for (String[] entity : list) {
+	                    URI entURI = (entity[0]!=null) ? factory.createURI(entity[0]) : null;
+	                    Literal entityText = (entity[1]!=null) ? factory.createLiteral(entity[1]) : null;
+	                    URI entTypeURI = (entity[2]!=null) ? factory.createURI(entity[2]) : null;
+	                    if(entURI!=null && entityText!=null){
+		                    Statement st1 = factory.createStatement(entURI, hasText, entityText);
+		                	openrdfModel.add(st1);
+	                    }
+	                    if(entURI!=null && doc!=null){
+	                    	Statement st2 = factory.createStatement(doc, mentions, entURI);
+	                    	openrdfModel.add(st2);
+	                    	Statement st3 = factory.createStatement(entURI, isMentioned, doc);
+	                    	openrdfModel.add(st3);
+	                    }
+	                    if(entURI!=null && entTypeURI!=null){
+	                    	Statement st4 = factory.createStatement(entURI, isTypeOf, entTypeURI);
+	                    	openrdfModel.add(st4);
+	                    }
+					}
+	//                return null;
+	           		nifResult = SesameStorage.storeTripletsFromModel(storageName, openrdfModel);
+                }
+                else{
+                	nifResult = inputText;
+                }
         	}
         	else{
            		nifResult = SesameStorage.storeTriplets(storageName, inputText, inputDataMimeType);

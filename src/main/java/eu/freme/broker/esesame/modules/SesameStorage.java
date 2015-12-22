@@ -42,6 +42,7 @@ import com.hp.hpl.jena.vocabulary.RDF;
 import eu.freme.broker.esesame.exceptions.BadRequestException;
 import eu.freme.broker.esesame.exceptions.ExternalServiceFailedException;
 import eu.freme.broker.filemanagement.FileFactory;
+import eu.freme.broker.niftools.NIF;
 import info.aduna.iteration.Iterations;
 
 /**
@@ -195,6 +196,7 @@ public class SesameStorage {
 			Repository rep = new SailRepository(new NativeStore(fil, ""));
 			rep.initialize();
 
+			
 			RepositoryConnection conn = rep.getConnection();
 			try{
 				ValueFactory f  = rep.getValueFactory();
@@ -206,7 +208,31 @@ public class SesameStorage {
 				URI predicate = (sPredicate==null) ? null : f.createURI(sPredicate);
 				URI object = (sObject==null) ? null : f.createURI(sPredicate);
 				
+				
+					
 				RepositoryResult<Statement> statements =  conn.getStatements(subject, predicate, object, true);
+
+//				int i=0,j=0,k=0,l=0;
+//				while (statements.hasNext()) {
+//					Statement st = statements.next();
+//					System.out.println(st.getPredicate().toString());
+//					if(st.getObject().toString().equalsIgnoreCase("http://dkt.dfki.de/ontologies/nif#date")){
+//						l++;
+//					}
+//					if(st.getObject().toString().equalsIgnoreCase("http://dkt.dfki.de/ontologies/nif#location")){
+//						i++;
+//					}
+//					if(st.getObject().toString().equalsIgnoreCase("http://dkt.dfki.de/ontologies/nif#organization")){
+//						j++;
+//					}
+//					if(st.getObject().toString().equalsIgnoreCase("http://dkt.dfki.de/ontologies/nif#person")){
+//						k++;
+//					}
+//				}
+//				System.out.println("Temporals: " + l);
+//				System.out.println("locations: " + i);
+//				System.out.println("ORG: " + j);
+//				System.out.println("PER: " + k);
 
 				org.openrdf.model.Model model = Iterations.addAll(statements, new LinkedHashModel());
 
@@ -271,7 +297,7 @@ public class SesameStorage {
 				model.setNamespace("rdfs", RDFS.NAMESPACE);
 				model.setNamespace("xsd", XMLSchema.NAMESPACE);
 				model.setNamespace("foaf", FOAF.NAMESPACE);
-				model.setNamespace("nif", "");
+				model.setNamespace("nif", NIF.getURI());
 
 				StringWriter sw = new StringWriter();
 				//Rio.write(model, System.out, RDFFormat.TURTLE);
