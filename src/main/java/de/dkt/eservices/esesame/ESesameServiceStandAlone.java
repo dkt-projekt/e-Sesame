@@ -27,7 +27,7 @@ public class ESesameServiceStandAlone extends BaseRestController {
 	@Autowired
 	ESesameService service;
 
-	@RequestMapping(value = "/e-documentstorage/testURL", method = { RequestMethod.POST, RequestMethod.GET })
+	@RequestMapping(value = "/e-sesame/testURL", method = { RequestMethod.POST, RequestMethod.GET })
 	public ResponseEntity<String> testURL(
 			@RequestParam(value = "preffix", required = false) String preffix,
             @RequestBody(required = false) String postBody) throws Exception {
