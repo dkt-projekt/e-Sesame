@@ -1,8 +1,10 @@
-package eu.freme.broker.esesame.api;
+package de.dkt.eservices.esesame;
 
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -11,17 +13,12 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import eu.freme.broker.eservices.BaseRestController;
-import eu.freme.broker.esesame.exceptions.BadRequestException;
-import eu.freme.broker.esesame.exceptions.ExternalServiceFailedException;
-import eu.freme.broker.tools.ExceptionHandlerService;
-import eu.freme.broker.tools.NIFParameterFactory;
-import eu.freme.broker.tools.NIFParameterSet;
-import eu.freme.broker.tools.ParameterChecker;
-import eu.freme.broker.tools.RDFELinkSerializationFormats;
-import eu.freme.broker.tools.RDFSerializationFormats;
+import de.dkt.common.tools.ParameterChecker;
 import eu.freme.common.conversion.rdf.RDFConstants;
-import eu.freme.common.conversion.rdf.RDFConversionService;
+import eu.freme.common.exception.BadRequestException;
+import eu.freme.common.exception.ExternalServiceFailedException;
+import eu.freme.common.rest.BaseRestController;
+import eu.freme.common.rest.NIFParameterSet;
 
 
 @RestController
@@ -29,22 +26,18 @@ public class ESesameServiceStandAlone extends BaseRestController {
 	
 	@Autowired
 	ESesameService service;
+
+	@RequestMapping(value = "/e-documentstorage/testURL", method = { RequestMethod.POST, RequestMethod.GET })
+	public ResponseEntity<String> testURL(
+			@RequestParam(value = "preffix", required = false) String preffix,
+            @RequestBody(required = false) String postBody) throws Exception {
+
+    	HttpHeaders responseHeaders = new HttpHeaders();
+    	responseHeaders.add("Content-Type", "text/plain");
+    	ResponseEntity<String> response = new ResponseEntity<String>("The restcontroller is working properly", responseHeaders, HttpStatus.OK);
+    	return response;
+	}
 	
-	@Autowired
-	RDFConversionService rdfConversionService;
-
-	@Autowired
-	NIFParameterFactory nifParameterFactory;
-
-	@Autowired
-	RDFSerializationFormats rdfSerializationFormats;
-
-	@Autowired
-	RDFELinkSerializationFormats rdfELinkSerializationFormats;
-	
-	@Autowired
-	ExceptionHandlerService exceptionHandlerService;
-
 	@RequestMapping(value = "/e-DKTBroker/sendQuery", method = {
 			RequestMethod.POST, RequestMethod.GET })
 	public String trainModel(
@@ -136,7 +129,7 @@ public class ESesameServiceStandAlone extends BaseRestController {
                     //inModel = rdfConversionService.unserializeRDF(nifParameters.getInput(), nifParameters.getInformat());
                 	textForProcessing = postBody;
                     if (textForProcessing == null) {
-                        throw new eu.freme.broker.exception.BadRequestException("No text to process.");
+                        throw new BadRequestException("No text to process.");
                     }
                 }
             	

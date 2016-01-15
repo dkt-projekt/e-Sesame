@@ -1,8 +1,5 @@
-package eu.freme.broker.esesame.api;
+package de.dkt.eservices.esesame;
 
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.InputStreamReader;
 import java.util.List;
 
 import org.openrdf.model.Literal;
@@ -12,22 +9,20 @@ import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.impl.LinkedHashModel;
 import org.openrdf.model.impl.ValueFactoryImpl;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 
-import eu.freme.broker.esesame.exceptions.BadRequestException;
-import eu.freme.broker.esesame.exceptions.ExternalServiceFailedException;
-import eu.freme.broker.esesame.modules.SesameStorage;
-import eu.freme.broker.niftools.NIFReader;
-import eu.freme.broker.tools.ParameterChecker;
-import eu.freme.broker.tools.ResponseGenerator;
+import de.dkt.common.niftools.NIFReader;
+import de.dkt.common.tools.ParameterChecker;
+import de.dkt.common.tools.ResponseGenerator;
+import de.dkt.eservices.esesame.modules.SesameStorage;
 import eu.freme.common.conversion.rdf.JenaRDFConversionService;
 import eu.freme.common.conversion.rdf.RDFConstants.RDFSerialization;
 import eu.freme.common.conversion.rdf.RDFConversionService;
+import eu.freme.common.exception.BadRequestException;
+import eu.freme.common.exception.ExternalServiceFailedException;
 
 /**
  * @author Julian Moreno Schneider julian.moreno_schneider@dfki.de

@@ -1,4 +1,4 @@
-package eu.freme.broker.esesame.modules;
+package de.dkt.eservices.esesame.modules;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -34,15 +34,10 @@ import org.openrdf.rio.RDFParseException;
 import org.openrdf.rio.Rio;
 import org.openrdf.sail.nativerdf.NativeStore;
 
-import com.hp.hpl.jena.rdf.model.ModelFactory;
-import com.hp.hpl.jena.rdf.model.Resource;
-import com.hp.hpl.jena.rdf.model.StmtIterator;
-import com.hp.hpl.jena.vocabulary.RDF;
-
-import eu.freme.broker.esesame.exceptions.BadRequestException;
-import eu.freme.broker.esesame.exceptions.ExternalServiceFailedException;
-import eu.freme.broker.filemanagement.FileFactory;
-import eu.freme.broker.niftools.NIF;
+import de.dkt.common.filemanagement.FileFactory;
+import de.dkt.common.niftools.NIF;
+import eu.freme.common.exception.BadRequestException;
+import eu.freme.common.exception.ExternalServiceFailedException;
 import info.aduna.iteration.Iterations;
 
 /**
