@@ -87,7 +87,12 @@ public class ESesameService {
         	if(inputDataMimeType.equalsIgnoreCase("NIF")){
         		
         		com.hp.hpl.jena.rdf.model.Model jenaModel = ModelFactory.createDefaultModel();
-        		jenaModel = rdfConversionService.unserializeRDF(inputText, RDFSerialization.TURTLE);
+        		try{
+            		jenaModel = rdfConversionService.unserializeRDF(inputText, RDFSerialization.RDF_XML);
+        		}
+        		catch(Exception e){
+            		jenaModel = rdfConversionService.unserializeRDF(inputText, RDFSerialization.TURTLE);
+        		}
 
         		String docURI = NIFReader.extractDocumentURI(jenaModel);
         		List<String[]> list = NIFReader.extractEntities(jenaModel);

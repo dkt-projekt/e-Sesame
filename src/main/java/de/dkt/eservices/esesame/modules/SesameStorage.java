@@ -396,7 +396,13 @@ public class SesameStorage {
 
 				Model model = null;
 				
-				com.hp.hpl.jena.rdf.model.Model nifModel = NIFReader.extractModelFromFormatString(nifData, RDFSerialization.TURTLE);
+				com.hp.hpl.jena.rdf.model.Model nifModel = null;
+				try{
+					nifModel = NIFReader.extractModelFromFormatString(nifData, RDFSerialization.TURTLE);
+				}
+				catch(Exception e){
+					nifModel = NIFReader.extractModelFromFormatString(nifData, RDFSerialization.RDF_XML);
+				}
 				
 				List<String[]> entities = NIFReader.extractEntities(nifModel);
 

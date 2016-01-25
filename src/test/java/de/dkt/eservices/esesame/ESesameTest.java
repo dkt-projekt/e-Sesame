@@ -140,10 +140,6 @@ public class ESesameTest {
 				.queryString("informat", "text")
 				.queryString("input", "hello world")
 				.queryString("outformat", "turtle").asString();
-
-		System.out.println("BODY: "+response.getBody());
-		System.out.println("STATUS:" + response.getStatus());
-
 		assertTrue(response.getStatus() == 200);
 		assertTrue(response.getBody().length() > 0);
 
@@ -166,9 +162,6 @@ public class ESesameTest {
 				.queryString("predicate", "http://de.dkt.sesame/ontology/mentions")
 				.queryString("namespace", "")
 				.asString();
-//
-//		System.out.println("BODY: "+response.getBody());
-//		System.out.println("STATUS:" + response.getStatus());
 
 		Assert.assertEquals(response.getStatus(), 200);
 		assertTrue(response.getBody().length() > 0);
