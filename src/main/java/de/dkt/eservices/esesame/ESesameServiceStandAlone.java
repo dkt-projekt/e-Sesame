@@ -2,6 +2,7 @@ package de.dkt.eservices.esesame;
 
 import java.util.Map;
 
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -24,6 +25,8 @@ import eu.freme.common.rest.NIFParameterSet;
 @RestController
 public class ESesameServiceStandAlone extends BaseRestController {
 	
+	Logger logger = Logger.getLogger(ESesameServiceStandAlone.class);
+
 	@Autowired
 	ESesameService service;
 
@@ -38,17 +41,11 @@ public class ESesameServiceStandAlone extends BaseRestController {
     	return response;
 	}
 	
-	@RequestMapping(value = "/e-DKTBroker/sendQuery", method = {
-			RequestMethod.POST, RequestMethod.GET })
-	public String trainModel(
-			@RequestParam(value = "text", required = false) String text,
-            @RequestBody(required = false) String postBody) throws Exception {
-		return "Hemos recibido el texto: "+text;
-	}
-	
 	@RequestMapping(value = "/e-sesame/storeData", method = { RequestMethod.POST, RequestMethod.GET })
 	public ResponseEntity<String> storeData(
 			@RequestParam(value = "storageName", required = false) String storageName,
+			@RequestParam(value = "storagePath", required = false) String storagePath,
+			@RequestParam(value = "storageCreate", required = false) boolean storageCreate,
 			@RequestParam(value = "inputDataFormat", required = false) String inputDataFormat,
 			@RequestParam(value = "inputDataMimeType", required = false) String inputDataMimeType,
 			@RequestParam(value = "inputData", required = false) String inputData,
@@ -58,21 +55,21 @@ public class ESesameServiceStandAlone extends BaseRestController {
 			@RequestParam(value = "namespace", required = false) String nam,
             @RequestBody(required = false) String postBody) throws Exception {
 
-		ParameterChecker.checkNotNullOrEmpty(inputDataFormat, "input data type");
+		ParameterChecker.checkNotNullOrEmpty(inputDataFormat, "input data format");
 		ParameterChecker.checkNotNullOrEmpty(inputDataMimeType, "input data type");
 		ParameterChecker.checkNotNullOrEmpty(storageName, "storage Name");
 //		ESesameService.checkNotNullOrEmpty(inputDataType, "input Data");
-        
+
         try {
         	if(subj!=null && pred!=null && obj!=null){
-        		return service.storeEntitiesFromTriplet(storageName, subj, pred, obj, nam);
+        		return service.storeEntitiesFromTriplet(storageName, storagePath, storageCreate, subj, pred, obj, nam);
         	}
         	else{
         		if(inputDataFormat.equalsIgnoreCase("param")){
-        			return service.storeEntitiesFromString(storageName, inputData, inputDataMimeType);
+        			return service.storeEntitiesFromString(storageName, storagePath, storageCreate, inputData, inputDataMimeType);
         		}
         		else if(inputDataFormat.equalsIgnoreCase("body")){
-        			return service.storeEntitiesFromString(storageName, postBody, inputDataMimeType);
+        			return service.storeEntitiesFromString(storageName, storagePath, storageCreate, postBody, inputDataMimeType);
         		}
         		else{
         			throw new BadRequestException("Input data is not in the proper format ...");
@@ -84,7 +81,7 @@ public class ESesameServiceStandAlone extends BaseRestController {
             throw e;
         }
 	}
-
+	
 	@RequestMapping(value = "/e-sesame/retrieveData", method = { RequestMethod.POST, RequestMethod.GET })
 	public ResponseEntity<String> retrieveData(
 			@RequestParam(value = "input", required = false) String input,
@@ -100,23 +97,24 @@ public class ESesameServiceStandAlone extends BaseRestController {
             @RequestParam Map<String, String> allParams,
 
 			@RequestParam(value = "storageName", required = false) String storageName,
+			@RequestParam(value = "storagePath", required = false) String storagePath,
 			@RequestParam(value = "inputDataType", required = false) String inputDataType,
 			@RequestParam(value = "inputData", required = false) String inputData,
-			@RequestParam(value = "subj", required = false) String subj,
-			@RequestParam(value = "pred", required = false) String pred,
-			@RequestParam(value = "obj", required = false) String obj,
+			@RequestParam(value = "subject", required = false) String subj,
+			@RequestParam(value = "predicate", required = false) String pred,
+			@RequestParam(value = "object", required = false) String obj,
             @RequestBody(required = false) String postBody) throws Exception {
 
 		ParameterChecker.checkNotNullOrEmpty(inputDataType, "input data type");
-		ParameterChecker.checkNotNullOrEmpty(inputDataType, "storage Name");
+		ParameterChecker.checkNotNullOrEmpty(storageName, "storage Name");
 //		ESesameService.checkNotNullOrEmpty(inputDataType, "input Data");
         
         try {
         	
-            NIFParameterSet nifParameters = this.normalizeNif(postBody, acceptHeader, contentTypeHeader, allParams, true);
+            NIFParameterSet nifParameters = this.normalizeNif(input, acceptHeader, contentTypeHeader, allParams, true);
 
         	if(subj!=null || pred!=null || obj!=null){
-        		return service.retrieveEntitiesFromTriplet(storageName, subj, pred, obj);
+        		return service.retrieveEntitiesFromTriplet(storageName, storagePath, subj, pred, obj);
         	}
         	else{
                 String textForProcessing = null;
@@ -133,11 +131,14 @@ public class ESesameServiceStandAlone extends BaseRestController {
                     }
                 }
             	
-        		if(inputDataType.equalsIgnoreCase("entity")){
-        			return service.retrieveEntitiesFromString(storageName, textForProcessing);
+        		if(inputDataType.equalsIgnoreCase("NIF")){
+        			return service.retrieveEntitiesFromNIF(storageName, storagePath, textForProcessing);
+        		}
+        		else if(inputDataType.equalsIgnoreCase("entity")){
+        			return service.retrieveEntitiesFromString(storageName, storagePath, textForProcessing);
         		}
         		else if(inputDataType.equalsIgnoreCase("sparql")){
-        			return service.retrieveEntitiesFromSPARQL(storageName, textForProcessing);
+        			return service.retrieveEntitiesFromSPARQL(storageName, storagePath, textForProcessing);
         		}
         		else{
         			throw new BadRequestException("Input data is not in the proper format ...");

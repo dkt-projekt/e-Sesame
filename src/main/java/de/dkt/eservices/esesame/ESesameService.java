@@ -1,5 +1,6 @@
 package de.dkt.eservices.esesame;
 
+import java.io.File;
 import java.util.List;
 
 import org.openrdf.model.Literal;
@@ -36,9 +37,10 @@ public class ESesameService {
     
 	RDFConversionService rdfConversionService = new JenaRDFConversionService();
 
-	private String storageLocation="/Users/jumo04/Documents/DFKI/DKT/dkt-test/testComplete/sesameStorage";
+	private String storageLocation="/Users/jumo04/Documents/DFKI/DKT/dkt-test/testTimelining/sesameStorage/";
 	
 	public ESesameService() {
+		SesameStorage.setStorageDirectory(storageLocation);
 	}
 	
 	public ESesameService(String storageLocation) {
@@ -63,22 +65,29 @@ public class ESesameService {
 	
 		ESesameService service = new ESesameService();
 //		System.out.println(service.retrieveEntitiesFromTriplet("testComplete/", null, null, null));
-		service.retrieveEntitiesFromTriplet("testComplete/", null, null, null);
+		service.retrieveEntitiesFromTriplet("testComplete/", null, null, null, null);
 
 	}
 	
-	
-    public ResponseEntity<String> storeEntitiesFromString(String storageName, String inputText, String inputDataMimeType)
+    public ResponseEntity<String> storeEntitiesFromString(String storageName, String storagePath, boolean storageCreate, String inputText, String inputDataMimeType)
             throws ExternalServiceFailedException, BadRequestException, Exception {
         try {
-        	ParameterChecker.checkNotNullOrEmpty(storageName, "No Storage specified");
+        	ParameterChecker.checkNotNullOrEmpty(storageName, "storage");
         	ParameterChecker.checkNotNullOrEmpty(inputText, "No inputText specified");
+
+        	SesameStorage.setStorageCreate(storageCreate);
+        	if(storagePath!=null && !storagePath.equalsIgnoreCase("")){
+        		if(!storagePath.endsWith(File.separator)){
+        			storagePath += File.separator;
+        		}
+        		SesameStorage.setStorageDirectory(storagePath);
+        	}
         	
         	String nifResult;
         	if(inputDataMimeType.equalsIgnoreCase("NIF")){
         		
         		com.hp.hpl.jena.rdf.model.Model jenaModel = ModelFactory.createDefaultModel();
-        		jenaModel = rdfConversionService.unserializeRDF(inputText, RDFSerialization.RDF_XML);
+        		jenaModel = rdfConversionService.unserializeRDF(inputText, RDFSerialization.TURTLE);
 
         		String docURI = NIFReader.extractDocumentURI(jenaModel);
         		List<String[]> list = NIFReader.extractEntities(jenaModel);
@@ -121,7 +130,7 @@ public class ESesameService {
         	else{
            		nifResult = SesameStorage.storeTriplets(storageName, inputText, inputDataMimeType);
         	}
-       		
+       		nifResult = inputText;
            	return ResponseGenerator.successResponse(nifResult, "RDF/XML");
         } catch (BadRequestException e) {
             throw e;
@@ -130,7 +139,7 @@ public class ESesameService {
     	}
     }
 
-    public ResponseEntity<String> storeEntitiesFromTriplet(String storageName, String subject, String predicate, String object, String namespace)
+    public ResponseEntity<String> storeEntitiesFromTriplet(String storageName, String storagePath, boolean storageCreate, String subject, String predicate, String object, String namespace)
             throws ExternalServiceFailedException, BadRequestException {
         try {
         	ParameterChecker.checkNotNullOrEmpty(subject, "subject");
@@ -138,6 +147,14 @@ public class ESesameService {
         	ParameterChecker.checkNotNullOrEmpty(object, "object");
         	ParameterChecker.checkNotNullOrEmpty(storageName, "No Storage specified");
 
+        	SesameStorage.setStorageCreate(storageCreate);
+        	if(storagePath!=null && !storagePath.equalsIgnoreCase("")){
+        		if(!storagePath.endsWith(File.separator)){
+        			storagePath += File.separator;
+        		}
+        		SesameStorage.setStorageDirectory(storagePath);
+        	}
+        	
         	String nifResult = SesameStorage.storeTriplet(storageName, subject, predicate, object, namespace);
        		
            	return ResponseGenerator.successResponse(nifResult, "RDF/XML");
@@ -148,12 +165,19 @@ public class ESesameService {
     	}
     }
 
-    public ResponseEntity<String> retrieveEntitiesFromString(String storageName, String inputRDFData)
+    public ResponseEntity<String> retrieveEntitiesFromString(String storageName, String storagePath, String inputRDFData)
             throws ExternalServiceFailedException, BadRequestException {
         try {
         	ParameterChecker.checkNotNullOrEmpty(storageName, "Storage Name");
         	ParameterChecker.checkNotNullOrEmpty(inputRDFData, "inputRDFData");
 
+        	if(storagePath!=null && !storagePath.equalsIgnoreCase("")){
+        		if(!storagePath.endsWith(File.separator)){
+        			storagePath += File.separator;
+        		}
+        		SesameStorage.setStorageDirectory(storagePath);
+        	}
+        	
        		String nifResult = SesameStorage.retrieveTriplets(storageName, inputRDFData);
        		
            	return ResponseGenerator.successResponse(nifResult, "RDF/XML");
@@ -162,12 +186,19 @@ public class ESesameService {
     	} 
     }
 
-    public ResponseEntity<String> retrieveEntitiesFromSPARQL(String storageName, String inputSPARQLQuery)
+    public ResponseEntity<String> retrieveEntitiesFromSPARQL(String storageName, String storagePath, String inputSPARQLQuery)
             throws ExternalServiceFailedException, BadRequestException {
         try {
         	ParameterChecker.checkNotNullOrEmpty(storageName, "Storage Name");
         	ParameterChecker.checkNotNullOrEmpty(inputSPARQLQuery, "inputRDFData");
 
+        	if(storagePath!=null && !storagePath.equalsIgnoreCase("")){
+        		if(!storagePath.endsWith(File.separator)){
+        			storagePath += File.separator;
+        		}
+        		SesameStorage.setStorageDirectory(storagePath);
+        	}
+        	
        		String nifResult = SesameStorage.retrieveTripletsFromSPARQL(storageName, inputSPARQLQuery);
        		
            	return ResponseGenerator.successResponse(nifResult, "RDF/JSON");
@@ -176,7 +207,7 @@ public class ESesameService {
     	} 
     }
 
-    public ResponseEntity<String> retrieveEntitiesFromTriplet(String storageName, String subject, String predicate, String object)
+    public ResponseEntity<String> retrieveEntitiesFromTriplet(String storageName, String storagePath, String subject, String predicate, String object)
             throws ExternalServiceFailedException, BadRequestException {
         try {
         	if( (subject==null || subject.equals("")) && (predicate==null || predicate.equals("")) && (object==null || object.equals("")) ){
@@ -186,6 +217,13 @@ public class ESesameService {
         	}
         	ParameterChecker.checkNotNullOrEmpty(storageName, "Storage Name");
 
+        	if(storagePath!=null && !storagePath.equalsIgnoreCase("")){
+        		if(!storagePath.endsWith(File.separator)){
+        			storagePath += File.separator;
+        		}
+        		SesameStorage.setStorageDirectory(storagePath);
+        	}
+        	
        		String nifResult = SesameStorage.retrieveTriplets(storageName, subject, predicate, object);
        		
            	return ResponseGenerator.successResponse(nifResult, "RDF/XML");
@@ -194,4 +232,24 @@ public class ESesameService {
     	} 
     }
 
+    public ResponseEntity<String> retrieveEntitiesFromNIF(String storageName, String storagePath, String nifData)
+            throws ExternalServiceFailedException, BadRequestException {
+        try {
+        	ParameterChecker.checkNotNullOrEmpty(storageName, "Storage Name");
+        	ParameterChecker.checkNotNullOrEmpty(nifData, "inputNIFData");
+
+        	if(storagePath!=null && !storagePath.equalsIgnoreCase("")){
+        		if(!storagePath.endsWith(File.separator)){
+        			storagePath += File.separator;
+        		}
+        		SesameStorage.setStorageDirectory(storagePath);
+        	}
+        	
+       		String nifResult = SesameStorage.retrieveTripletsFromNIF(storageName, nifData);
+       		
+           	return ResponseGenerator.successResponse(nifResult, "RDF/XML");
+        } catch (BadRequestException e) {
+            throw e;
+    	} 
+    }
 }

@@ -8,12 +8,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 import org.openrdf.model.Model;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.impl.LinkedHashModel;
+import org.openrdf.model.impl.ValueFactoryImpl;
 import org.openrdf.model.vocabulary.FOAF;
 import org.openrdf.model.vocabulary.RDFS;
 import org.openrdf.model.vocabulary.XMLSchema;
@@ -23,6 +25,7 @@ import org.openrdf.query.QueryLanguage;
 import org.openrdf.query.TupleQuery;
 import org.openrdf.query.TupleQueryResultHandlerException;
 import org.openrdf.query.resultio.sparqljson.SPARQLResultsJSONWriter;
+import org.openrdf.query.resultio.sparqlxml.SPARQLResultsXMLWriter;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
@@ -31,11 +34,14 @@ import org.openrdf.repository.sail.SailRepository;
 import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.RDFParseException;
+import org.openrdf.rio.RDFWriter;
 import org.openrdf.rio.Rio;
 import org.openrdf.sail.nativerdf.NativeStore;
 
 import de.dkt.common.filemanagement.FileFactory;
 import de.dkt.common.niftools.NIF;
+import de.dkt.common.niftools.NIFReader;
+import eu.freme.common.conversion.rdf.RDFConstants.RDFSerialization;
 import eu.freme.common.exception.BadRequestException;
 import eu.freme.common.exception.ExternalServiceFailedException;
 import info.aduna.iteration.Iterations;
@@ -46,13 +52,21 @@ import info.aduna.iteration.Iterations;
  */
 public class SesameStorage {
 
-	private static String storageDirectory="/Users/jumo04/Documents/DFKI/DKT/dkt-test/testComplete/sesameStorage/";
+	private static String storageDirectory;
 //	private static String storageDirectory = "C:\\Users\\jmschnei\\Desktop\\dkt-test\\sesame\\";
+
+	private static boolean storageCreate;
 
 	@SuppressWarnings("all")
 	public static String storeTripletsFromModel(String storageName, Model model) throws ExternalServiceFailedException {
 		try {
-			File f = FileFactory.generateOrCreateDirectoryInstance(storageDirectory + storageName);
+			File f = null;
+			if(storageCreate){
+				f = FileFactory.generateOrCreateDirectoryInstance(storageDirectory + storageName);
+			}
+			else{
+				f = FileFactory.generateFileInstance(storageDirectory + storageName);
+			}
 //			ClassPathResource cpr = new ClassPathResource(storageDirectory + storageName);
 //			Repository rep = new SailRepository(new NativeStore(cpr.getFile()));
 			Repository rep = new SailRepository(new NativeStore(f));
@@ -85,8 +99,13 @@ public class SesameStorage {
 	@SuppressWarnings("all")
 	public static String storeTriplets(String storageName, String data, String dataFormat) throws ExternalServiceFailedException {
 		try {
-			File f = FileFactory.generateFileInstance(storageDirectory + storageName);
-			
+			File f = null;
+			if(storageCreate){
+				f = FileFactory.generateOrCreateDirectoryInstance(storageDirectory + storageName);
+			}
+			else{
+				f = FileFactory.generateFileInstance(storageDirectory + storageName);
+			}			
 //			ClassPathResource cpr = new ClassPathResource(storageDirectory + storageName);
 //			Repository rep = new SailRepository(new NativeStore(cpr.getFile()));
 			Repository rep = new SailRepository(new NativeStore(f));
@@ -128,17 +147,17 @@ public class SesameStorage {
 	@SuppressWarnings("all")
 	public static String storeTriplet(String storageName, String sSubject, String sPredicate, String sObject, String sNameSpace) throws ExternalServiceFailedException {
 		try{
-			
-//			ClassPathResource cpr = new ClassPathResource(storageDirectory + storageName);
-//			Repository rep = new SailRepository(new NativeStore(cpr.getFile()));
-//			File fil = cpr.getFile();
-			//File fil = new File(storageDirectory + "" + storageName);
-
-			File fil = FileFactory.generateFileInstance(storageDirectory + storageName);
-			if(!fil.exists()){
-				fil.mkdir();
-				System.out.println("Dir created:");
+			File fil = null;
+			if(storageCreate){
+				fil = FileFactory.generateOrCreateDirectoryInstance(storageDirectory + storageName);
 			}
+			else{
+				fil = FileFactory.generateFileInstance(storageDirectory + storageName);
+			}			
+//			if(!fil.exists()){
+//				fil.mkdir();
+//				System.out.println("Dir created:");
+//			}
 			
 			Repository rep = new SailRepository(new NativeStore(fil, ""));
 			rep.initialize();
@@ -151,7 +170,7 @@ public class SesameStorage {
 //			URI subject = f.createURI(sSubject);
 //			URI predicate = f.createURI(sPredicate);
 //			URI object = f.createURI(sObject);
-
+			ValueFactoryImpl vfi = new ValueFactoryImpl();
 			RepositoryConnection conn = rep.getConnection();
 			try{
 				conn.add(subject, predicate, object);
@@ -160,7 +179,7 @@ public class SesameStorage {
 				conn.close();
 				rep.shutDown();
 			}
-			return "Triplet properly stored in: "+storageName;
+			return "<"+subject+"> <"+predicate+"> <"+object+">";
 		}
 		catch (RepositoryException e) {
 			e.printStackTrace();
@@ -179,10 +198,6 @@ public class SesameStorage {
 	@SuppressWarnings("all")
 	public static String retrieveTriplets(String storageName, String sSubject, String sPredicate, String sObject) throws ExternalServiceFailedException {
 		try{
-			
-//			ClassPathResource cpr = new ClassPathResource(storageDirectory + storageName);
-//			File fil = cpr.getFile();
-//			File fil = new File(storageDirectory + "" + storageName);
 			File fil = FileFactory.generateFileInstance(storageDirectory + storageName);
 			if(!fil.exists()){
 				throw new ExternalServiceFailedException("Triplet store does not exist.!!!");
@@ -201,9 +216,7 @@ public class SesameStorage {
 				//				URI object = f.createURI(namespace, sObject);
 				URI subject = (sSubject==null) ? null : f.createURI(sSubject);
 				URI predicate = (sPredicate==null) ? null : f.createURI(sPredicate);
-				URI object = (sObject==null) ? null : f.createURI(sPredicate);
-				
-				
+				URI object = (sObject==null) ? null : f.createURI(sObject);
 					
 				RepositoryResult<Statement> statements =  conn.getStatements(subject, predicate, object, true);
 
@@ -229,13 +242,13 @@ public class SesameStorage {
 //				System.out.println("ORG: " + j);
 //				System.out.println("PER: " + k);
 
-				org.openrdf.model.Model model = Iterations.addAll(statements, new LinkedHashModel());
+				Model model = Iterations.addAll(statements, new LinkedHashModel());
 
 				model.setNamespace("rdf", org.openrdf.model.vocabulary.RDF.NAMESPACE);
 				model.setNamespace("rdfs", RDFS.NAMESPACE);
 				model.setNamespace("xsd", XMLSchema.NAMESPACE);
 				model.setNamespace("foaf", FOAF.NAMESPACE);
-				model.setNamespace("nif", "");
+				model.setNamespace("nif", NIF.getURI());
 
 				StringWriter sw = new StringWriter();
 				//				Rio.write(model, System.out, RDFFormat.TURTLE);
@@ -247,10 +260,6 @@ public class SesameStorage {
 				rep.shutDown();
 			}
 		}
-//		catch(FileNotFoundException e){
-//			e.printStackTrace();
-//			throw new ExternalServiceFailedException(e.getMessage());
-//		}
 		catch(IOException e){
 			e.printStackTrace();
 			throw new ExternalServiceFailedException(e.getMessage());
@@ -333,11 +342,14 @@ public class SesameStorage {
 			try{
 				StringWriter sw = new StringWriter();
 				ByteArrayOutputStream bos = new ByteArrayOutputStream();
-				SPARQLResultsJSONWriter jsonWriter = new SPARQLResultsJSONWriter(bos);
+				SPARQLResultsXMLWriter xmlWriter = new SPARQLResultsXMLWriter(bos);
+//				SPARQLResultsJSONWriter jsonWriter = new SPARQLResultsJSONWriter(bos);
 
 //				String queryString = "SELECT ?x ?y WHERE { ?x ?p ?y } ";
+				System.out.println("QUERY: "+inputSPARQLData);
 				TupleQuery tupleQuery = conn.prepareTupleQuery(QueryLanguage.SPARQL, inputSPARQLData);
-				tupleQuery.evaluate(jsonWriter);
+//				tupleQuery.evaluate(jsonWriter);
+				tupleQuery.evaluate(xmlWriter);
 
 				return new String(bos.toByteArray());
 			}
@@ -372,12 +384,99 @@ public class SesameStorage {
 		}
 	}
 	
+	public static String retrieveTripletsFromNIF(String storageName, String nifData) throws ExternalServiceFailedException {
+		try{
+			File fil = FileFactory.generateFileInstance(storageDirectory + storageName);
+			Repository rep = new SailRepository(new NativeStore(fil, ""));
+			rep.initialize();
+
+			RepositoryConnection conn = rep.getConnection();
+			try{
+				ValueFactory f  = rep.getValueFactory();
+
+				Model model = null;
+				
+				com.hp.hpl.jena.rdf.model.Model nifModel = NIFReader.extractModelFromFormatString(nifData, RDFSerialization.TURTLE);
+				
+				List<String[]> entities = NIFReader.extractEntities(nifModel);
+
+				for (String[] strings : entities) {
+//					System.out.println("ENTITY: ");
+//					for (String string : strings) {
+//						System.out.println("\t"+string);
+//					}
+					String entityText = strings[0];
+					RepositoryResult<Statement> statements =  conn.getStatements(f.createURI(entityText), null, null, true);
+					if(model==null)
+						model = Iterations.addAll(statements, new LinkedHashModel());
+					else
+						model.addAll(Iterations.addAll(statements, new LinkedHashModel()));
+					RepositoryResult<Statement> statements2 =  conn.getStatements(null, f.createURI(entityText), null, true);
+					if(model==null)
+						model = Iterations.addAll(statements2, new LinkedHashModel());
+					else
+						model.addAll(Iterations.addAll(statements2, new LinkedHashModel()));
+					RepositoryResult<Statement> statements3 =  conn.getStatements(null, null, f.createURI(entityText), true);
+					if(model==null)
+						model = Iterations.addAll(statements3, new LinkedHashModel());
+					else
+						model.addAll(Iterations.addAll(statements3, new LinkedHashModel()));
+//					Rio.write(model, System.out, RDFFormat.TURTLE);
+				}
+				model.setNamespace("rdf", org.openrdf.model.vocabulary.RDF.NAMESPACE);
+				model.setNamespace("rdfs", RDFS.NAMESPACE);
+				model.setNamespace("xsd", XMLSchema.NAMESPACE);
+				model.setNamespace("foaf", FOAF.NAMESPACE);
+				model.setNamespace("nif", NIF.getURI());
+
+				StringWriter sw = new StringWriter();
+				//Rio.write(model, System.out, RDFFormat.TURTLE);
+				Rio.write(model, sw, RDFFormat.RDFXML);
+				return sw.toString();
+			}
+			catch(Exception e){
+				conn.close();
+				rep.shutDown();
+				throw new BadRequestException("Input NIF is not TURTLE format.");
+			}
+			finally{
+				conn.close();
+				rep.shutDown();
+			}
+		}
+		catch(FileNotFoundException e){
+			e.printStackTrace();
+			throw new ExternalServiceFailedException(e.getMessage());
+		}
+		catch(IOException e){
+			e.printStackTrace();
+			throw new ExternalServiceFailedException(e.getMessage());
+		}
+		catch (RepositoryException e) {
+			e.printStackTrace();
+			throw new ExternalServiceFailedException(e.getMessage());
+		}
+//		catch (RDFHandlerException e) {
+//			e.printStackTrace();
+//			throw new ExternalServiceFailedException(e.getMessage());
+//		}
+	}
+
+	
 	public static String getStorageDirectory() {
 		return storageDirectory;
 	}
 
 	public static void setStorageDirectory(String storageDirectory) {
 		SesameStorage.storageDirectory = storageDirectory;
+	}
+
+	public static boolean isStorageCreate() {
+		return storageCreate;
+	}
+
+	public static void setStorageCreate(boolean storageCreate) {
+		SesameStorage.storageCreate = storageCreate;
 	}
 
 	public static void main(String[] args) throws Exception{
