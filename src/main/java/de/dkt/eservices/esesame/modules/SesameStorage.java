@@ -8,11 +8,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.openrdf.model.Model;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
+import org.openrdf.model.Value;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.impl.LinkedHashModel;
 import org.openrdf.model.impl.ValueFactoryImpl;
@@ -39,6 +43,7 @@ import org.openrdf.rio.Rio;
 import org.openrdf.sail.nativerdf.NativeStore;
 
 import de.dkt.common.filemanagement.FileFactory;
+import de.dkt.common.niftools.ITSRDF;
 import de.dkt.common.niftools.NIF;
 import de.dkt.common.niftools.NIFReader;
 import eu.freme.common.conversion.rdf.RDFConstants.RDFSerialization;
@@ -393,6 +398,220 @@ public class SesameStorage {
 			RepositoryConnection conn = rep.getConnection();
 			try{
 				ValueFactory f  = rep.getValueFactory();
+				Model model = null;
+				
+				com.hp.hpl.jena.rdf.model.Model nifModel = null;
+				try{
+					nifModel = NIFReader.extractModelFromFormatString(nifData, RDFSerialization.TURTLE);
+				}
+				catch(Exception e){
+					nifModel = NIFReader.extractModelFromFormatString(nifData, RDFSerialization.RDF_XML);
+				}
+				
+				Map<String,Map<String,String>> entities = NIFReader.extractEntitiesExtended(nifModel);
+
+				Set<String> keys = entities.keySet();
+				
+				for (String k: keys) {
+//					System.out.println("ENTITY: ");
+//					for (String string : strings) {
+//						System.out.println("\t"+string);
+//					}
+					String entityText = k;
+					
+					RepositoryResult<Statement> statements =  conn.getStatements(f.createURI(entityText), null, null, true);
+					if(model==null)
+						model = Iterations.addAll(statements, new LinkedHashModel());
+					else
+						model.addAll(Iterations.addAll(statements, new LinkedHashModel()));
+					RepositoryResult<Statement> statements2 =  conn.getStatements(null, f.createURI(entityText), null, true);
+					if(model==null)
+						model = Iterations.addAll(statements2, new LinkedHashModel());
+					else
+						model.addAll(Iterations.addAll(statements2, new LinkedHashModel()));
+					RepositoryResult<Statement> statements3 =  conn.getStatements(null, null, f.createURI(entityText), true);
+					if(model==null)
+						model = Iterations.addAll(statements3, new LinkedHashModel());
+					else
+						model.addAll(Iterations.addAll(statements3, new LinkedHashModel()));
+//					Rio.write(model, System.out, RDFFormat.TURTLE);
+				}
+				model.setNamespace("rdf", org.openrdf.model.vocabulary.RDF.NAMESPACE);
+				model.setNamespace("rdfs", RDFS.NAMESPACE);
+				model.setNamespace("xsd", XMLSchema.NAMESPACE);
+				model.setNamespace("foaf", FOAF.NAMESPACE);
+				model.setNamespace("nif", NIF.getURI());
+
+				StringWriter sw = new StringWriter();
+				//Rio.write(model, System.out, RDFFormat.TURTLE);
+				Rio.write(model, sw, RDFFormat.RDFXML);
+				return sw.toString();
+			}
+			catch(Exception e){
+				conn.close();
+				rep.shutDown();
+				throw new BadRequestException("Input NIF is not TURTLE format.");
+			}
+			finally{
+				conn.close();
+				rep.shutDown();
+			}
+		}
+		catch(FileNotFoundException e){
+			e.printStackTrace();
+			throw new ExternalServiceFailedException(e.getMessage());
+		}
+		catch(IOException e){
+			e.printStackTrace();
+			throw new ExternalServiceFailedException(e.getMessage());
+		}
+		catch (RepositoryException e) {
+			e.printStackTrace();
+			throw new ExternalServiceFailedException(e.getMessage());
+		}
+	}
+
+	public static String retrieveTripletsFromNIFIterative(String storageName, String nifData, int iterations) throws ExternalServiceFailedException {
+		try{
+			File fil = FileFactory.generateFileInstance(storageDirectory + storageName);
+			Repository rep = new SailRepository(new NativeStore(fil, ""));
+			rep.initialize();
+
+			RepositoryConnection conn = rep.getConnection();
+			try{
+				ValueFactory f  = rep.getValueFactory();
+				Model model = null;
+				
+				com.hp.hpl.jena.rdf.model.Model nifModel = null;
+				try{
+					nifModel = NIFReader.extractModelFromFormatString(nifData, RDFSerialization.TURTLE);
+				}
+				catch(Exception e){
+					nifModel = NIFReader.extractModelFromFormatString(nifData, RDFSerialization.RDF_XML);
+				}
+				
+				Map<String,Map<String,String>> entities = NIFReader.extractEntitiesExtended(nifModel);
+
+				Set<String> keys = entities.keySet();
+				
+				for (String k: keys) {
+//					System.out.println("ENTITY: ");
+//					for (String string : strings) {
+//						System.out.println("\t"+string);
+//					}
+					List<String> uris = new LinkedList<String>();
+					
+					Map<String,String> attributes = entities.get(k);
+					Set<String> keys2 = attributes.keySet();
+
+					System.out.println("ADDING TO URIS: "+k);
+					uris.add(k);
+					for (String k2 : keys2) {
+						String object = attributes.get(k2);
+						if(object.startsWith("http") || object.startsWith("<http")){
+							if(k2.equalsIgnoreCase(ITSRDF.taIdentRef.getURI()) || 
+									k2.equalsIgnoreCase(NIF.referenceContext.getURI())){
+								uris.add(object);
+								System.out.println("ADDING TO URIS: "+object);
+							}
+						}
+						else{
+							ValueFactory vf = new ValueFactoryImpl();
+							Value v = vf.createLiteral(object);
+							RepositoryResult<Statement> statements =  null;
+							statements = conn.getStatements(null, f.createURI(k2), v, true);
+//							if(k2.equalsIgnoreCase(NIF.birthDate.getURI())){
+//								statements = conn.getStatements(null, f.createURI(k2), v, true);
+//							}
+//							else if(k2.equalsIgnoreCase(NIF.deathDate.getURI())){
+//								statements = conn.getStatements(null, f.createURI(k2), f.createURI(object), true);
+//							}
+//							else if(k2.equalsIgnoreCase(NIF.geoPoint.getURI())){
+//								statements = conn.getStatements(null, f.createURI(k2), f.createURI(object), true);
+//							}
+//							else if(k2.equalsIgnoreCase(NIF.anchorOf.getURI())){
+//								statements = conn.getStatements(null, f.createURI(k2), f.createURI(object), true);
+//							}
+//							else if(k2.equalsIgnoreCase(NIF.normalizedDate.getURI())){
+//								statements = conn.getStatements(null, f.createURI(k2), f.createURI(object), true);
+//							}
+							if(statements!=null && statements.hasNext()){
+								if(model==null)
+									model = Iterations.addAll(statements, new LinkedHashModel());
+								else
+									model.addAll(Iterations.addAll(statements, new LinkedHashModel()));
+							}
+						}
+					}
+					
+					for (String u : uris) {
+						System.out.println(u);
+						RepositoryResult<Statement> statements =  conn.getStatements(f.createURI(u), null, null, true);
+						if(model==null)
+							model = Iterations.addAll(statements, new LinkedHashModel());
+						else
+							model.addAll(Iterations.addAll(statements, new LinkedHashModel()));
+						RepositoryResult<Statement> statements2 =  conn.getStatements(null, f.createURI(u), null, true);
+						if(model==null)
+							model = Iterations.addAll(statements2, new LinkedHashModel());
+						else
+							model.addAll(Iterations.addAll(statements2, new LinkedHashModel()));
+						RepositoryResult<Statement> statements3 =  conn.getStatements(null, null, f.createURI(u), true);
+						if(model==null)
+							model = Iterations.addAll(statements3, new LinkedHashModel());
+						else
+							model.addAll(Iterations.addAll(statements3, new LinkedHashModel()));
+					}
+//					Rio.write(model, System.out, RDFFormat.TURTLE);
+				}
+				model.setNamespace("rdf", org.openrdf.model.vocabulary.RDF.NAMESPACE);
+				model.setNamespace("rdfs", RDFS.NAMESPACE);
+				model.setNamespace("xsd", XMLSchema.NAMESPACE);
+				model.setNamespace("foaf", FOAF.NAMESPACE);
+				model.setNamespace("nif", NIF.getURI());
+
+				StringWriter sw = new StringWriter();
+				//Rio.write(model, System.out, RDFFormat.TURTLE);
+				Rio.write(model, sw, RDFFormat.RDFXML);
+				return sw.toString();
+			}
+			catch(Exception e){
+				e.printStackTrace();
+				conn.close();
+				rep.shutDown();
+				throw new BadRequestException("Input NIF is not TURTLE format.");
+			}
+			finally{
+				conn.close();
+				rep.shutDown();
+			}
+		}
+		catch(FileNotFoundException e){
+			e.printStackTrace();
+			throw new ExternalServiceFailedException(e.getMessage());
+		}
+		catch(IOException e){
+			e.printStackTrace();
+			throw new ExternalServiceFailedException(e.getMessage());
+		}
+		catch (RepositoryException e) {
+			e.printStackTrace();
+			throw new ExternalServiceFailedException(e.getMessage());
+		}
+	}
+
+	/**
+	 * Previous version when there was less information extracted from the NIF entities and doc.
+	 */
+	public static String retrieveTripletsFromNIF_OLD(String storageName, String nifData) throws ExternalServiceFailedException {
+		try{
+			File fil = FileFactory.generateFileInstance(storageDirectory + storageName);
+			Repository rep = new SailRepository(new NativeStore(fil, ""));
+			rep.initialize();
+
+			RepositoryConnection conn = rep.getConnection();
+			try{
+				ValueFactory f  = rep.getValueFactory();
 
 				Model model = null;
 				
@@ -406,6 +625,8 @@ public class SesameStorage {
 				
 				List<String[]> entities = NIFReader.extractEntities(nifModel);
 
+				
+				
 				for (String[] strings : entities) {
 //					System.out.println("ENTITY: ");
 //					for (String string : strings) {
@@ -467,7 +688,6 @@ public class SesameStorage {
 //			throw new ExternalServiceFailedException(e.getMessage());
 //		}
 	}
-
 	
 	public static String getStorageDirectory() {
 		return storageDirectory;
