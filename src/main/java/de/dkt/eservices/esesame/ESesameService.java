@@ -17,9 +17,13 @@ import org.springframework.stereotype.Component;
 
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 
+import de.dkt.common.niftools.DBO;
+import de.dkt.common.niftools.DFKINIF;
+import de.dkt.common.niftools.GEO;
 import de.dkt.common.niftools.ITSRDF;
 import de.dkt.common.niftools.NIF;
 import de.dkt.common.niftools.NIFReader;
+import de.dkt.common.niftools.NIFWriter;
 import de.dkt.common.tools.ParameterChecker;
 import de.dkt.common.tools.ResponseGenerator;
 import de.dkt.eservices.esesame.modules.SesameStorage;
@@ -122,20 +126,47 @@ public class ESesameService {
                 URI hasExternalLink = factory.createURI("http://dkt.dfki.de/hasExternalLink");
                 URI isExternalLinkOf = factory.createURI("http://dkt.dfki.de/isExternalLinkOf");
                 URI hasMeanDateRange = factory.createURI("http://dkt.dfki.de/hasMeanDateRange");
-                URI hasCentralGeoPoint = factory.createURI("http://dkt.dfki.de/hasCentralGeoPoint");
-                URI hasGeoStandardDevs = factory.createURI("http://dkt.dfki.de/hasGeoStandardDevs");
+                //URI hasCentralGeoPoint = factory.createURI("http://dkt.dfki.de/hasCentralGeoPoint");
+                URI hasLatitudeAverage = factory.createURI(DFKINIF.averageLatitude.getURI());
+                URI hasLongitudeAverage = factory.createURI(DFKINIF.averageLongitude.getURI());
+                URI hasLatitudeStandardDevs = factory.createURI(DFKINIF.standardDeviationLatitude.getURI());
+                URI hasLongitudeStandardDevs = factory.createURI(DFKINIF.standardDeviationLongitude.getURI());
 
                 if(docList!=null){
                 	Set<String> keys = docList.keySet();
                 	for (String k : keys) {
+                		/*
                     	if(k.equalsIgnoreCase(NIF.centralGeoPoint.getURI())){
 		                    Literal literalText = factory.createLiteral(docList.get(k));
 		                    Statement st1 = factory.createStatement(doc, hasCentralGeoPoint, literalText);
 		                	openrdfModel.add(st1);
                     	}
+                    	*/
+                    	if(k.equalsIgnoreCase(DFKINIF.averageLatitude.getURI())){
+                    		Literal literalText = factory.createLiteral(docList.get(k));
+		                    Statement st1 = factory.createStatement(doc, hasLatitudeAverage, literalText);
+		                	openrdfModel.add(st1);
+                    	}
+                    	else if(k.equalsIgnoreCase(DFKINIF.averageLongitude.getURI())){
+                    		Literal literalText = factory.createLiteral(docList.get(k));
+		                    Statement st1 = factory.createStatement(doc, hasLongitudeAverage, literalText);
+		                	openrdfModel.add(st1);
+                    	}
+                    	/*
                     	else if(k.equalsIgnoreCase(NIF.geoStandardDevs.getURI())){
 		                    Literal literalText = factory.createLiteral(docList.get(k));
 		                    Statement st1 = factory.createStatement(doc, hasGeoStandardDevs, literalText);
+		                	openrdfModel.add(st1);
+                    	}
+                    	*/
+                    	else if(k.equalsIgnoreCase(DFKINIF.standardDeviationLatitude.getURI())){
+		                    Literal literalText = factory.createLiteral(docList.get(k));
+		                    Statement st1 = factory.createStatement(doc, hasLatitudeStandardDevs, literalText);
+		                	openrdfModel.add(st1);
+                    	}
+                    	else if(k.equalsIgnoreCase(DFKINIF.standardDeviationLongitude.getURI())){
+		                    Literal literalText = factory.createLiteral(docList.get(k));
+		                    Statement st1 = factory.createStatement(doc, hasLongitudeStandardDevs, literalText);
 		                	openrdfModel.add(st1);
                     	}
                     	else if(k.equalsIgnoreCase(NIF.meanDateRange.getURI())){
@@ -166,12 +197,14 @@ public class ESesameService {
 			                    Statement st1 = factory.createStatement(entURI, hasText, entityText);
 			                	openrdfModel.add(st1);
 	                    	}
-	                    	else if(k2.equalsIgnoreCase(NIF.birthDate.getURI())){
+	                    	else if(k2.equalsIgnoreCase(DBO.birthDate.getURI())){
+	                    		NIFWriter.addPrefixToModel(jenaModel, "dbo", DBO.uri);
 			                    Literal text = factory.createLiteral(map.get(k2));
 			                    Statement st1 = factory.createStatement(entURI, hasBirthDate, text);
 			                	openrdfModel.add(st1);
 	                    	}
-	                    	else if(k2.equalsIgnoreCase(NIF.deathDate.getURI())){
+	                    	else if(k2.equalsIgnoreCase(DBO.deathDate.getURI())){
+	                    		NIFWriter.addPrefixToModel(jenaModel, "dbo", DBO.uri);
 			                    Literal text = factory.createLiteral(map.get(k2));
 			                    Statement st1 = factory.createStatement(entURI, hasDeathDate, text);
 			                	openrdfModel.add(st1);
@@ -186,7 +219,14 @@ public class ESesameService {
 			                    Statement st1 = factory.createStatement(entURI, hasNormalizedDate, text);
 			                	openrdfModel.add(st1);
 	                    	}
-	                    	else if(k2.equalsIgnoreCase(NIF.geoPoint.getURI())){
+	                    	else if(k2.equalsIgnoreCase(GEO.latitude.getURI())){
+	                    		NIFWriter.addPrefixToModel(jenaModel, "geo", GEO.uri);
+			                    Literal text = factory.createLiteral(map.get(k2));
+			                    Statement st1 = factory.createStatement(entURI, hasGeoPoint, text);
+			                	openrdfModel.add(st1);
+	                    	}
+	                    	else if(k2.equalsIgnoreCase(GEO.longitude.getURI())){
+	                    		NIFWriter.addPrefixToModel(jenaModel, "geo", GEO.uri);
 			                    Literal text = factory.createLiteral(map.get(k2));
 			                    Statement st1 = factory.createStatement(entURI, hasGeoPoint, text);
 			                	openrdfModel.add(st1);
