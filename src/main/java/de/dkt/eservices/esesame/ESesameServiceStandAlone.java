@@ -54,11 +54,9 @@ public class ESesameServiceStandAlone extends BaseRestController {
 			@RequestParam(value = "object", required = false) String obj,
 			@RequestParam(value = "namespace", required = false) String nam,
             @RequestBody(required = false) String postBody) throws Exception {
-
-		ParameterChecker.checkNotNullOrEmpty(inputDataFormat, "input data format");
-		ParameterChecker.checkNotNullOrEmpty(inputDataMimeType, "input data type");
-		ParameterChecker.checkNotNullOrEmpty(storageName, "storage Name");
-//		ESesameService.checkNotNullOrEmpty(inputDataType, "input Data");
+		ParameterChecker.checkNotNullOrEmpty(inputDataFormat, "input data format", logger);
+		ParameterChecker.checkNotNullOrEmpty(inputDataMimeType, "input data type", logger);
+		ParameterChecker.checkNotNullOrEmpty(storageName, "storage Name", logger);
 
         try {
         	if(subj!=null && pred!=null && obj!=null){
@@ -72,13 +70,16 @@ public class ESesameServiceStandAlone extends BaseRestController {
         			return service.storeEntitiesFromString(storageName, storagePath, storageCreate, postBody, inputDataMimeType);
         		}
         		else{
+        			logger.error("Input data is not in the proper format ...");
         			throw new BadRequestException("Input data is not in the proper format ...");
         		}
         	}
         } catch (BadRequestException e) {
+        	logger.error(e.getMessage());
             throw e;
         } catch (ExternalServiceFailedException e) {
-            throw e;
+        	logger.error(e.getMessage());
+        	throw e;
         }
 	}
 	
@@ -104,10 +105,8 @@ public class ESesameServiceStandAlone extends BaseRestController {
 			@RequestParam(value = "predicate", required = false) String pred,
 			@RequestParam(value = "object", required = false) String obj,
             @RequestBody(required = false) String postBody) throws Exception {
-
-		ParameterChecker.checkNotNullOrEmpty(inputDataType, "input data type");
-		ParameterChecker.checkNotNullOrEmpty(storageName, "storage Name");
-//		ESesameService.checkNotNullOrEmpty(inputDataType, "input Data");
+		ParameterChecker.checkNotNullOrEmpty(inputDataType, "input data type", logger);
+		ParameterChecker.checkNotNullOrEmpty(storageName, "storage Name", logger);
         
         try {
         	
@@ -127,6 +126,7 @@ public class ESesameServiceStandAlone extends BaseRestController {
                     //inModel = rdfConversionService.unserializeRDF(nifParameters.getInput(), nifParameters.getInformat());
                 	textForProcessing = postBody;
                     if (textForProcessing == null) {
+                        logger.error("No text to process.");
                         throw new BadRequestException("No text to process.");
                     }
                 }
@@ -141,12 +141,15 @@ public class ESesameServiceStandAlone extends BaseRestController {
         			return service.retrieveEntitiesFromSPARQL(storageName, storagePath, textForProcessing);
         		}
         		else{
+        			logger.error("Input data is not in the proper format ...");
         			throw new BadRequestException("Input data is not in the proper format ...");
         		}
         	}
         } catch (BadRequestException e) {
+        	logger.error(e.getMessage());
             throw e;
         } catch (ExternalServiceFailedException e) {
+        	logger.error(e.getMessage());
             throw e;
         }
 	}

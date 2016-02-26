@@ -13,6 +13,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
+import org.openrdf.model.Literal;
 import org.openrdf.model.Model;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
@@ -23,12 +25,13 @@ import org.openrdf.model.impl.ValueFactoryImpl;
 import org.openrdf.model.vocabulary.FOAF;
 import org.openrdf.model.vocabulary.RDFS;
 import org.openrdf.model.vocabulary.XMLSchema;
+import org.openrdf.query.BindingSet;
 import org.openrdf.query.MalformedQueryException;
 import org.openrdf.query.QueryEvaluationException;
 import org.openrdf.query.QueryLanguage;
 import org.openrdf.query.TupleQuery;
+import org.openrdf.query.TupleQueryResult;
 import org.openrdf.query.TupleQueryResultHandlerException;
-import org.openrdf.query.resultio.sparqljson.SPARQLResultsJSONWriter;
 import org.openrdf.query.resultio.sparqlxml.SPARQLResultsXMLWriter;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
@@ -38,7 +41,6 @@ import org.openrdf.repository.sail.SailRepository;
 import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.RDFParseException;
-import org.openrdf.rio.RDFWriter;
 import org.openrdf.rio.Rio;
 import org.openrdf.sail.nativerdf.NativeStore;
 
@@ -56,6 +58,8 @@ import info.aduna.iteration.Iterations;
  *
  */
 public class SesameStorage {
+
+	static Logger logger = Logger.getLogger(SesameStorage.class);
 
 	private static String storageDirectory;
 //	private static String storageDirectory = "C:\\Users\\jmschnei\\Desktop\\dkt-test\\sesame\\";
@@ -90,13 +94,15 @@ public class SesameStorage {
 			return " It has been correctly added to the tripletSTore: "+storageName;
 		}
 		catch (RepositoryException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 			throw new ExternalServiceFailedException(e.getMessage());
 		}
 		catch(FileNotFoundException e){
+			logger.error(e.getMessage());
 			throw new BadRequestException(e.getMessage());
 		}
 		catch(IOException e){
+			logger.error(e.getMessage());
 			throw new BadRequestException(e.getMessage());
 		}
 	}
@@ -134,17 +140,19 @@ public class SesameStorage {
 			return dataFormat + " has been correctly added to the tripletSTore: "+storageName;
 		}
 		catch (RepositoryException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 			throw new ExternalServiceFailedException(e.getMessage());
 		}
 		catch (RDFParseException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 			throw new ExternalServiceFailedException(e.getMessage());
 		}
 		catch(FileNotFoundException e){
+			logger.error(e.getMessage());
 			throw new BadRequestException(e.getMessage());
 		}
 		catch(IOException e){
+			logger.error(e.getMessage());
 			throw new BadRequestException(e.getMessage());
 		}
 	}
@@ -171,14 +179,28 @@ public class SesameStorage {
 			String namespace = (sNameSpace==null) ? "" : sNameSpace;//"http://dkt.dfki.de/";
 			URI subject = f.createURI(namespace, sSubject);
 			URI predicate = f.createURI(namespace, sPredicate);
-			URI object = f.createURI(namespace, sObject);
+			URI object = null;
+			Literal lObject = null;
+			boolean isResource = true;
+			if(!sObject.startsWith("http") || sObject.startsWith("\"")){
+				isResource=false;
+				lObject = f.createLiteral(sObject); 
+			}
+			else{
+				object = f.createURI(namespace, sObject);
+			}
 //			URI subject = f.createURI(sSubject);
 //			URI predicate = f.createURI(sPredicate);
 //			URI object = f.createURI(sObject);
 			ValueFactoryImpl vfi = new ValueFactoryImpl();
 			RepositoryConnection conn = rep.getConnection();
 			try{
-				conn.add(subject, predicate, object);
+				if(isResource){
+					conn.add(subject, predicate, object);
+				}
+				else{
+					conn.add(subject, predicate, lObject);
+				}
 			}
 			finally{
 				conn.close();
@@ -187,15 +209,11 @@ public class SesameStorage {
 			return "<"+subject+"> <"+predicate+"> <"+object+">";
 		}
 		catch (RepositoryException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 			throw new ExternalServiceFailedException(e.getMessage());
 		}
-//		catch(FileNotFoundException e){
-//			e.printStackTrace();
-//			throw new ExternalServiceFailedException(e.getMessage());
-//		}
 		catch(IOException e){
-			e.printStackTrace();
+			logger.error(e.getMessage());
 			throw new ExternalServiceFailedException(e.getMessage());
 		}
 	}
@@ -266,15 +284,15 @@ public class SesameStorage {
 			}
 		}
 		catch(IOException e){
-			e.printStackTrace();
+			logger.error(e.getMessage());
 			throw new ExternalServiceFailedException(e.getMessage());
 		}
 		catch (RepositoryException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 			throw new ExternalServiceFailedException(e.getMessage());
 		}
 		catch (RDFHandlerException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 			throw new ExternalServiceFailedException(e.getMessage());
 		}
 	}
@@ -319,19 +337,19 @@ public class SesameStorage {
 			}
 		}
 		catch(FileNotFoundException e){
-			e.printStackTrace();
+			logger.error(e.getMessage());
 			throw new ExternalServiceFailedException(e.getMessage());
 		}
 		catch(IOException e){
-			e.printStackTrace();
+			logger.error(e.getMessage());
 			throw new ExternalServiceFailedException(e.getMessage());
 		}
 		catch (RepositoryException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 			throw new ExternalServiceFailedException(e.getMessage());
 		}
 		catch (RDFHandlerException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 			throw new ExternalServiceFailedException(e.getMessage());
 		}
 	}
@@ -345,7 +363,6 @@ public class SesameStorage {
 
 			RepositoryConnection conn = rep.getConnection();
 			try{
-				StringWriter sw = new StringWriter();
 				ByteArrayOutputStream bos = new ByteArrayOutputStream();
 				SPARQLResultsXMLWriter xmlWriter = new SPARQLResultsXMLWriter(bos);
 //				SPARQLResultsJSONWriter jsonWriter = new SPARQLResultsJSONWriter(bos);
@@ -364,27 +381,76 @@ public class SesameStorage {
 			}
 		}
 		catch(MalformedQueryException e){
-			e.printStackTrace();
+			logger.error(e.getMessage());
 			throw new ExternalServiceFailedException(e.getMessage());
 		}
 		catch(QueryEvaluationException e){
-			e.printStackTrace();
+			logger.error(e.getMessage());
 			throw new ExternalServiceFailedException(e.getMessage());
 		}
 		catch(TupleQueryResultHandlerException e){
-			e.printStackTrace();
+			logger.error(e.getMessage());
 			throw new ExternalServiceFailedException(e.getMessage());
 		}
 		catch(FileNotFoundException e){
-			e.printStackTrace();
+			logger.error(e.getMessage());
 			throw new ExternalServiceFailedException(e.getMessage());
 		}
 		catch(IOException e){
-			e.printStackTrace();
+			logger.error(e.getMessage());
 			throw new ExternalServiceFailedException(e.getMessage());
 		}
 		catch (RepositoryException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
+			throw new ExternalServiceFailedException(e.getMessage());
+		}
+	}
+	
+	public static List<BindingSet> retrieveTQRTripletsFromSPARQL(String storageName, String inputSPARQLData) throws ExternalServiceFailedException {
+		try{
+			List<BindingSet> list = new LinkedList<BindingSet>();
+//			ClassPathResource cpr = new ClassPathResource(storageDirectory + storageName);
+			File fil = FileFactory.generateFileInstance(storageDirectory + storageName);
+			Repository rep = new SailRepository(new NativeStore(fil, ""));
+			rep.initialize();
+
+			RepositoryConnection conn = rep.getConnection();
+			try{
+//				SPARQLResultsJSONWriter jsonWriter = new SPARQLResultsJSONWriter(bos);
+//				String queryString = "SELECT ?x ?y WHERE { ?x ?p ?y } ";
+				System.out.println("QUERY: "+inputSPARQLData);
+				TupleQuery tupleQuery = conn.prepareTupleQuery(QueryLanguage.SPARQL, inputSPARQLData);
+//				tupleQuery.evaluate(jsonWriter);
+				TupleQueryResult result = tupleQuery.evaluate();
+				while(result.hasNext()){
+					list.add(result.next());
+				}
+//				System.out.println("JULIAN: "+result.hasNext());
+				return list;
+			}
+			finally{
+				conn.close();
+				rep.shutDown();
+			}
+		}
+		catch(MalformedQueryException e){
+			logger.error(e.getMessage());
+			throw new ExternalServiceFailedException(e.getMessage());
+		}
+		catch(QueryEvaluationException e){
+			logger.error(e.getMessage());
+			throw new ExternalServiceFailedException(e.getMessage());
+		}
+		catch(FileNotFoundException e){
+			logger.error(e.getMessage());
+			throw new ExternalServiceFailedException(e.getMessage());
+		}
+		catch(IOException e){
+			logger.error(e.getMessage());
+			throw new ExternalServiceFailedException(e.getMessage());
+		}
+		catch (RepositoryException e) {
+			logger.error(e.getMessage());
 			throw new ExternalServiceFailedException(e.getMessage());
 		}
 	}
@@ -458,15 +524,15 @@ public class SesameStorage {
 			}
 		}
 		catch(FileNotFoundException e){
-			e.printStackTrace();
+			logger.error(e.getMessage());
 			throw new ExternalServiceFailedException(e.getMessage());
 		}
 		catch(IOException e){
-			e.printStackTrace();
+			logger.error(e.getMessage());
 			throw new ExternalServiceFailedException(e.getMessage());
 		}
 		catch (RepositoryException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 			throw new ExternalServiceFailedException(e.getMessage());
 		}
 	}
@@ -576,9 +642,7 @@ public class SesameStorage {
 				return sw.toString();
 			}
 			catch(Exception e){
-				e.printStackTrace();
-				conn.close();
-				rep.shutDown();
+				logger.error(e.getMessage());
 				throw new BadRequestException("Input NIF is not TURTLE format.");
 			}
 			finally{
@@ -587,15 +651,15 @@ public class SesameStorage {
 			}
 		}
 		catch(FileNotFoundException e){
-			e.printStackTrace();
+			logger.error(e.getMessage());
 			throw new ExternalServiceFailedException(e.getMessage());
 		}
 		catch(IOException e){
-			e.printStackTrace();
+			logger.error(e.getMessage());
 			throw new ExternalServiceFailedException(e.getMessage());
 		}
 		catch (RepositoryException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 			throw new ExternalServiceFailedException(e.getMessage());
 		}
 	}
@@ -662,8 +726,7 @@ public class SesameStorage {
 				return sw.toString();
 			}
 			catch(Exception e){
-				conn.close();
-				rep.shutDown();
+				logger.error(e.getMessage());
 				throw new BadRequestException("Input NIF is not TURTLE format.");
 			}
 			finally{
@@ -672,21 +735,17 @@ public class SesameStorage {
 			}
 		}
 		catch(FileNotFoundException e){
-			e.printStackTrace();
+			logger.error(e.getMessage());
 			throw new ExternalServiceFailedException(e.getMessage());
 		}
 		catch(IOException e){
-			e.printStackTrace();
+			logger.error(e.getMessage());
 			throw new ExternalServiceFailedException(e.getMessage());
 		}
 		catch (RepositoryException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 			throw new ExternalServiceFailedException(e.getMessage());
 		}
-//		catch (RDFHandlerException e) {
-//			e.printStackTrace();
-//			throw new ExternalServiceFailedException(e.getMessage());
-//		}
 	}
 	
 	public static String getStorageDirectory() {
