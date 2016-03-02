@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import de.dkt.common.tools.ParameterChecker;
+import de.dkt.common.tools.ResponseGenerator;
 import eu.freme.common.conversion.rdf.RDFConstants;
 import eu.freme.common.exception.BadRequestException;
 import eu.freme.common.exception.ExternalServiceFailedException;
@@ -59,21 +60,23 @@ public class ESesameServiceStandAlone extends BaseRestController {
 		ParameterChecker.checkNotNullOrEmpty(storageName, "storage Name", logger);
 
         try {
+        	String nifResult = null;
         	if(subj!=null && pred!=null && obj!=null){
-        		return service.storeEntitiesFromTriplet(storageName, storagePath, storageCreate, subj, pred, obj, nam);
+        		nifResult = service.storeEntitiesFromTriplet(storageName, storagePath, storageCreate, subj, pred, obj, nam);
         	}
         	else{
         		if(inputDataFormat.equalsIgnoreCase("param")){
-        			return service.storeEntitiesFromString(storageName, storagePath, storageCreate, inputData, inputDataMimeType);
+        			nifResult = service.storeEntitiesFromString(storageName, storagePath, storageCreate, inputData, inputDataMimeType);
         		}
         		else if(inputDataFormat.equalsIgnoreCase("body")){
-        			return service.storeEntitiesFromString(storageName, storagePath, storageCreate, postBody, inputDataMimeType);
+        			nifResult = service.storeEntitiesFromString(storageName, storagePath, storageCreate, postBody, inputDataMimeType);
         		}
         		else{
         			logger.error("Input data is not in the proper format ...");
         			throw new BadRequestException("Input data is not in the proper format ...");
         		}
         	}
+           	return ResponseGenerator.successResponse(nifResult, "text/plain");
         } catch (BadRequestException e) {
         	logger.error(e.getMessage());
             throw e;
@@ -113,7 +116,8 @@ public class ESesameServiceStandAlone extends BaseRestController {
             NIFParameterSet nifParameters = this.normalizeNif(input, acceptHeader, contentTypeHeader, allParams, true);
 
         	if(subj!=null || pred!=null || obj!=null){
-        		return service.retrieveEntitiesFromTriplet(storageName, storagePath, subj, pred, obj);
+        		String nifResult = service.retrieveEntitiesFromTriplet(storageName, storagePath, subj, pred, obj);
+               	return ResponseGenerator.successResponse(nifResult, outformat);
         	}
         	else{
                 String textForProcessing = null;
@@ -130,20 +134,21 @@ public class ESesameServiceStandAlone extends BaseRestController {
                         throw new BadRequestException("No text to process.");
                     }
                 }
-            	
+            	String nifResult = null;
         		if(inputDataType.equalsIgnoreCase("NIF")){
-        			return service.retrieveEntitiesFromNIF(storageName, storagePath, textForProcessing);
+        			nifResult = service.retrieveEntitiesFromNIF(storageName, storagePath, textForProcessing);
         		}
         		else if(inputDataType.equalsIgnoreCase("entity")){
-        			return service.retrieveEntitiesFromString(storageName, storagePath, textForProcessing);
+        			nifResult = service.retrieveEntitiesFromString(storageName, storagePath, textForProcessing);
         		}
         		else if(inputDataType.equalsIgnoreCase("sparql")){
-        			return service.retrieveEntitiesFromSPARQL(storageName, storagePath, textForProcessing);
+        			nifResult = service.retrieveEntitiesFromSPARQL(storageName, storagePath, textForProcessing);
         		}
         		else{
         			logger.error("Input data is not in the proper format ...");
         			throw new BadRequestException("Input data is not in the proper format ...");
         		}
+               	return ResponseGenerator.successResponse(nifResult, outformat);
         	}
         } catch (BadRequestException e) {
         	logger.error(e.getMessage());
