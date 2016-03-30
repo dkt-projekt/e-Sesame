@@ -307,7 +307,7 @@ public class SesameStorage {
 				SPARQLResultsXMLWriter xmlWriter = new SPARQLResultsXMLWriter(bos);
 //				SPARQLResultsJSONWriter jsonWriter = new SPARQLResultsJSONWriter(bos);
 //				String queryString = "SELECT ?x ?y WHERE { ?x ?p ?y } ";
-				System.out.println("QUERY: "+inputSPARQLData);
+				//System.out.println("QUERY: "+inputSPARQLData);
 				TupleQuery tupleQuery = conn.prepareTupleQuery(QueryLanguage.SPARQL, inputSPARQLData);
 //				tupleQuery.evaluate(jsonWriter);
 				tupleQuery.evaluate(xmlWriter);
@@ -357,7 +357,7 @@ public class SesameStorage {
 			try{
 //				SPARQLResultsJSONWriter jsonWriter = new SPARQLResultsJSONWriter(bos);
 //				String queryString = "SELECT ?x ?y WHERE { ?x ?p ?y } ";
-				System.out.println("QUERY: "+inputSPARQLData);
+				//System.out.println("QUERY: "+inputSPARQLData);
 				TupleQuery tupleQuery = conn.prepareTupleQuery(QueryLanguage.SPARQL, inputSPARQLData);
 //				tupleQuery.evaluate(jsonWriter);
 				TupleQueryResult result = tupleQuery.evaluate();
@@ -501,7 +501,7 @@ public class SesameStorage {
 					Map<String,String> attributes = entities.get(k);
 					Set<String> keys2 = attributes.keySet();
 
-					System.out.println("ADDING TO URIS: "+k);
+					//System.out.println("ADDING TO URIS: "+k);
 					uris.add(k);
 					for (String k2 : keys2) {
 						String object = attributes.get(k2);
@@ -509,7 +509,7 @@ public class SesameStorage {
 							if(k2.equalsIgnoreCase(ITSRDF.taIdentRef.getURI()) || 
 									k2.equalsIgnoreCase(NIF.referenceContext.getURI())){
 								uris.add(object);
-								System.out.println("ADDING TO URIS: "+object);
+								//System.out.println("ADDING TO URIS: "+object);
 							}
 						}
 						else{
@@ -542,7 +542,7 @@ public class SesameStorage {
 					}
 					
 					for (String u : uris) {
-						System.out.println(u);
+						//System.out.println(u);
 						RepositoryResult<Statement> statements =  conn.getStatements(f.createURI(u), null, null, true);
 						if(model==null)
 							model = Iterations.addAll(statements, new LinkedHashModel());
@@ -606,7 +606,32 @@ public class SesameStorage {
 	public static void main(String[] args) throws Exception{
 		
 //		System.out.println(SesameStorage.storeTriplet("triplet2", "http://dkt.dfki.de/file2.txt", "http://dkt.dfki.de/ontology#isPartOf", "http://dkt.dfki.de/file3.txt", ""));
-		System.out.println(SesameStorage.retrieveTriplets("triplet2", null, null, null));
+		
+		
+		SesameStorage.setStorageDirectory("C:\\Users\\pebo01\\workspace\\e-Sesame\\target\\test-classes\\ontologies\\");
+		//System.out.println(SesameStorage.retrieveTriplets("geoFinal", "http://sws.geonames.org/2755003/", null, null));
 	
+		String sparqlQuery = 
+				"PREFIX geo: <http://www.w3.org/2003/01/geo/wgs84_pos/>\n" +
+				"PREFIX sws: <http://sws.geonames.org/>\n" +
+				"SELECT ?lat ?long WHERE { \n" +
+				"?geoNameId geo:lat ?lat . \n" +
+				"?geoNameId geo:long ?long . \n" +
+				"FILTER (?geoNameId = <http://sws.geonames.org/2755003/>) \n" +
+				"}";	
+			SesameStorage.setStorageDirectory("C:\\Users\\pebo01\\workspace\\e-Sesame\\target\\test-classes\\ontologies\\");
+//			List<BindingSet> sets = SesameStorage.retrieveTQRTripletsFromSPARQL("geoFinal", sparqlQuery);
+//			
+//			String lat = null;
+//			String lon = null;
+//			for (BindingSet bs : sets) {
+//				lat = bs.getValue("lat").toString();
+//				lon = bs.getValue("long").toString();
+//			}
+//			
+//			System.out.println("LATITUDE:" + lat);
+//			System.out.println("LONGITUDE:" + lon);
+			System.out.println("OUTPUT DEBUG: "+SesameStorage.retrieveTripletsFromSPARQL("geoFinal", sparqlQuery));
+				
 	}
 }
