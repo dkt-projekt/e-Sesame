@@ -1,7 +1,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>de.dkt</groupId>
-  <artifactId>e-SesameUpdate</artifactId>
+  <artifactId>e-Sesame</artifactId>
   <version>0.0.1-SNAPSHOT</version>
   <name>e-Sesame</name>
   <description>Sesame Web service for dkt project</description>
@@ -81,7 +81,7 @@
 		</dependency>
 		<dependency>
 			<groupId>de.dkt</groupId>
-			<artifactId>DKTCommonUpdate</artifactId>
+			<artifactId>DKTCommon</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>
