@@ -52,15 +52,7 @@ http://api.digitale-kuratierung.de/api/e-sesame/retrieveData
 
 ### Input
 The API conforms to the general NIF API specifications. For more details, see: http://persistence.uni-leipzig.org/nlp2rdf/specification/api.html
-In addition to the input, informat and outformat parameters, the following parameters have to be set to perform Semantic Information Storage:  
-
-
-
-			@RequestParam(value = "inputDataType", required = false) String inputDataType,
-			@RequestParam(value = "subject", required = false) String subj,
-			@RequestParam(value = "predicate", required = false) String pred,
-			@RequestParam(value = "object", required = false) String obj,
-
+In addition to the input, informat and outformat parameters, the following parameters have to be set to perform Semantic Information Retrieval:  
 
 `storageName`: name of the sesame (triple storage) where the information must be stored.
 
