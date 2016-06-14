@@ -204,11 +204,11 @@ public class SesameStorage {
 	}
 
 	@SuppressWarnings("all")
-	public static String retrieveTriplets(String storageName, String sSubject, String sPredicate, String sObject) throws ExternalServiceFailedException {
+	public static String retrieveTriplets(String storageName, String sSubject, String sPredicate, String sObject, String outformat) throws ExternalServiceFailedException {
 		try{
 			File fil = FileFactory.generateFileInstance(storageDirectory + storageName);
 			if(!fil.exists()){
-				throw new ExternalServiceFailedException("Triplet store does not exist.!!!");
+				throw new ExternalServiceFailedException("Triple store does not exist.!!!");
 			}
 			
 			Repository rep = new SailRepository(new NativeStore(fil, ""));
@@ -222,9 +222,23 @@ public class SesameStorage {
 				
 				RepositoryResult<Statement> statements =  conn.getStatements(subject, predicate, object, true);
 
+//				System.out.println(statements.hasNext());
+//				int counter=  0;
+//				while(statements.hasNext()){
+//					Statement st = statements.next();
+//					String s3 = st.getObject().stringValue();
+//					if(s3.contains("person") || s3.contains("Person")){
+//						System.out.println(s3);
+//					}
+//					counter++;
+//				}
+//				System.out.println(counter);
+
+//				System.exit(0);
 				Model model = Iterations.addAll(statements, new LinkedHashModel());
 				ModelManagement.addNamespaces(model);
-				return ModelManagement.model2String(model, RDFFormat.TURTLE);
+				RDFFormat format = RDFFormat.forMIMEType(outformat);
+				return ModelManagement.model2String(model, format);
 
 			}
 			finally{
@@ -233,6 +247,7 @@ public class SesameStorage {
 			}
 		}
 		catch(IOException e){
+			e.printStackTrace();
 			logger.error(e.getMessage());
 			throw new ExternalServiceFailedException(e.getMessage());
 		}
@@ -246,7 +261,7 @@ public class SesameStorage {
 		}
 	}
 
-	public static String retrieveTriplets(String storageName, String inputRDFData) throws ExternalServiceFailedException {
+	public static String retrieveTriplets(String storageName, String inputRDFData, String outformat) throws ExternalServiceFailedException {
 		try{
 //			ClassPathResource cpr = new ClassPathResource(storageDirectory + storageName);
 
@@ -269,8 +284,8 @@ public class SesameStorage {
 				RepositoryResult<Statement> statements3 =  conn.getStatements(null, null, f.createURI(inputRDFData), true);
 				model.addAll(Iterations.addAll(statements3, new LinkedHashModel()));
 				ModelManagement.addNamespaces(model);
-				return ModelManagement.model2String(model, RDFFormat.TURTLE);
-
+				RDFFormat format = RDFFormat.forMIMEType(outformat);
+				return ModelManagement.model2String(model, format);
 			}
 			finally{
 				conn.close();
@@ -295,7 +310,7 @@ public class SesameStorage {
 		}
 	}
 
-	public static String retrieveTripletsFromSPARQL(String storageName, String inputSPARQLData) throws ExternalServiceFailedException {
+	public static String retrieveTripletsFromSPARQL(String storageName, String inputSPARQLData, String outformat) throws ExternalServiceFailedException {
 		try{
 //			ClassPathResource cpr = new ClassPathResource(storageDirectory + storageName);
 			File fil = FileFactory.generateFileInstance(storageDirectory + storageName);
@@ -311,7 +326,6 @@ public class SesameStorage {
 				TupleQuery tupleQuery = conn.prepareTupleQuery(QueryLanguage.SPARQL, inputSPARQLData);
 //				tupleQuery.evaluate(jsonWriter);
 				tupleQuery.evaluate(xmlWriter);
-
 				return new String(bos.toByteArray());
 			}
 			finally{
@@ -394,7 +408,7 @@ public class SesameStorage {
 		}
 	}
 	
-	public static String retrieveTripletsFromNIF(String storageName, String nifData) throws ExternalServiceFailedException {
+	public static String retrieveTripletsFromNIF(String storageName, String nifData, String outformat) throws ExternalServiceFailedException {
 		try{
 			File fil = FileFactory.generateFileInstance(storageDirectory + storageName);
 			Repository rep = new SailRepository(new NativeStore(fil, ""));
@@ -413,17 +427,14 @@ public class SesameStorage {
 					nifModel = NIFReader.extractModelFromFormatString(nifData, RDFSerialization.RDF_XML);
 				}
 				
-				Map<String,Map<String,String>> entities = NIFReader.extractEntitiesExtended(nifModel);
+				List<String> entities = NIFReader.extractTaIdentRefsFromModel(nifModel);
 
-				Set<String> keys = entities.keySet();
-				
-				for (String k: keys) {
+				for (String k: entities) {
 //					System.out.println("ENTITY: ");
 //					for (String string : strings) {
 //						System.out.println("\t"+string);
 //					}
 					String entityText = k;
-					
 					RepositoryResult<Statement> statements =  conn.getStatements(f.createURI(entityText), null, null, true);
 					if(model==null)
 						model = Iterations.addAll(statements, new LinkedHashModel());
@@ -442,9 +453,10 @@ public class SesameStorage {
 //					Rio.write(model, System.out, RDFFormat.TURTLE);
 				}
 				ModelManagement.addNamespaces(model);
-				return ModelManagement.model2String(model, RDFFormat.TURTLE);
-			}
+				RDFFormat format = RDFFormat.forMIMEType(outformat);
+				return ModelManagement.model2String(model, format);			}
 			catch(Exception e){
+				e.printStackTrace();
 				conn.close();
 				rep.shutDown();
 				throw new BadRequestException("Input NIF is not TURTLE format.");
@@ -608,30 +620,32 @@ public class SesameStorage {
 //		System.out.println(SesameStorage.storeTriplet("triplet2", "http://dkt.dfki.de/file2.txt", "http://dkt.dfki.de/ontology#isPartOf", "http://dkt.dfki.de/file3.txt", ""));
 		
 		
-		SesameStorage.setStorageDirectory("C:\\Users\\pebo01\\workspace\\e-Sesame\\target\\test-classes\\ontologies\\");
-		//System.out.println(SesameStorage.retrieveTriplets("geoFinal", "http://sws.geonames.org/2755003/", null, null));
-	
-		String sparqlQuery = 
-				"PREFIX geo: <http://www.w3.org/2003/01/geo/wgs84_pos/>\n" +
-				"PREFIX sws: <http://sws.geonames.org/>\n" +
-				"SELECT ?lat ?long WHERE { \n" +
-				"?geoNameId geo:lat ?lat . \n" +
-				"?geoNameId geo:long ?long . \n" +
-				"FILTER (?geoNameId = <http://sws.geonames.org/2755003/>) \n" +
-				"}";	
-			SesameStorage.setStorageDirectory("C:\\Users\\pebo01\\workspace\\e-Sesame\\target\\test-classes\\ontologies\\");
-//			List<BindingSet> sets = SesameStorage.retrieveTQRTripletsFromSPARQL("geoFinal", sparqlQuery);
-//			
-//			String lat = null;
-//			String lon = null;
-//			for (BindingSet bs : sets) {
-//				lat = bs.getValue("lat").toString();
-//				lon = bs.getValue("long").toString();
-//			}
-//			
-//			System.out.println("LATITUDE:" + lat);
-//			System.out.println("LONGITUDE:" + lon);
-			System.out.println("OUTPUT DEBUG: "+SesameStorage.retrieveTripletsFromSPARQL("geoFinal", sparqlQuery));
+		SesameStorage.setStorageDirectory("/Users/jumo04/git/e-Sesame/target/test-classes/storage/");
+//		SesameStorage.setStorageDirectory("storage/");
+		System.out.println(SesameStorage.retrieveTriplets("test2/", "http://de.dkt.sesame/ontology/doc1", null, null, "application/rdf+xml"));
+//		System.out.println(SesameStorage.retrieveTriplets("test2", null, null, null, "application/rdf+xml"));
+//	
+//		String sparqlQuery = 
+//				"PREFIX geo: <http://www.w3.org/2003/01/geo/wgs84_pos/>\n" +
+//				"PREFIX sws: <http://sws.geonames.org/>\n" +
+//				"SELECT ?lat ?long WHERE { \n" +
+//				"?geoNameId geo:lat ?lat . \n" +
+//				"?geoNameId geo:long ?long . \n" +
+//				"FILTER (?geoNameId = <http://sws.geonames.org/2755003/>) \n" +
+//				"}";	
+//			SesameStorage.setStorageDirectory("C:\\Users\\pebo01\\workspace\\e-Sesame\\target\\test-classes\\ontologies\\");
+////			List<BindingSet> sets = SesameStorage.retrieveTQRTripletsFromSPARQL("geoFinal", sparqlQuery);
+////			
+////			String lat = null;
+////			String lon = null;
+////			for (BindingSet bs : sets) {
+////				lat = bs.getValue("lat").toString();
+////				lon = bs.getValue("long").toString();
+////			}
+////			
+////			System.out.println("LATITUDE:" + lat);
+////			System.out.println("LONGITUDE:" + lon);
+//			System.out.println("OUTPUT DEBUG: "+SesameStorage.retrieveTripletsFromSPARQL("geoFinal", sparqlQuery));
 				
 	}
 }

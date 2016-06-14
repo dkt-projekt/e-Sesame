@@ -17,12 +17,13 @@ import org.springframework.stereotype.Component;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 
 import de.dkt.common.niftools.DBO;
-import de.dkt.common.niftools.DFKINIF;
+import de.dkt.common.niftools.DKTNIF;
 import de.dkt.common.niftools.GEO;
 import de.dkt.common.niftools.ITSRDF;
 import de.dkt.common.niftools.NIF;
 import de.dkt.common.niftools.NIFReader;
 import de.dkt.common.niftools.NIFWriter;
+import de.dkt.common.niftools.TIME;
 import de.dkt.common.tools.ParameterChecker;
 import de.dkt.eservices.esesame.modules.SesameStorage;
 import eu.freme.common.conversion.rdf.JenaRDFConversionService;
@@ -73,7 +74,7 @@ public class ESesameService {
 	
 		ESesameService service = new ESesameService("/Users/jumo04/Documents/DFKI/DKT/dkt-test/tests/sesamestorages/");
 //		System.out.println(service.retrieveEntitiesFromTriplet("testComplete/", null, null, null));
-		String response = service.retrieveEntitiesFromTriplet("parrotTest", null, null, null, null);
+		String response = service.retrieveEntitiesFromTriplet("parrotTest", null, null, null, null,"text/turtle");
 		System.out.println(response);
 
 	}
@@ -119,18 +120,19 @@ public class ESesameService {
                 URI hasBirthDate = factory.createURI("http://dkt.dfki.de/hasBirthDate");
                 URI hasDeathDate = factory.createURI("http://dkt.dfki.de/hasDeathDate");
                 URI hasOrganizationType = factory.createURI("http://dkt.dfki.de/hasOrganizationType");
-                URI hasNormalizedDate = factory.createURI("http://dkt.dfki.de/hasNormlizedDate");
-                URI hasGeoPoint = factory.createURI("http://dkt.dfki.de/hasGeoPoint");
+                URI hasIntervalStarts = factory.createURI(TIME.intervalStarts.getURI());
+                URI hasIntervalFinishes = factory.createURI(TIME.intervalFinishes.getURI());
                 URI hasExternalLink = factory.createURI("http://dkt.dfki.de/hasExternalLink");
                 URI isExternalLinkOf = factory.createURI("http://dkt.dfki.de/isExternalLinkOf");
-                URI hasMeanDateRange = factory.createURI("http://dkt.dfki.de/hasMeanDateRange");
+                URI hasMeanDateStart = factory.createURI(DKTNIF.meanDateStart.getURI());
+                URI hasMeanDateEnd = factory.createURI(DKTNIF.meanDateEnd.getURI());
                 //URI hasCentralGeoPoint = factory.createURI("http://dkt.dfki.de/hasCentralGeoPoint");
-                URI hasLatitudeAverage = factory.createURI(DFKINIF.averageLatitude.getURI());
-                URI hasLongitudeAverage = factory.createURI(DFKINIF.averageLongitude.getURI());
+                URI hasLatitudeAverage = factory.createURI(DKTNIF.averageLatitude.getURI());
+                URI hasLongitudeAverage = factory.createURI(DKTNIF.averageLongitude.getURI());
                 URI hasLatitude = factory.createURI(GEO.latitude.getURI());
                 URI hasLongitude = factory.createURI(GEO.longitude.getURI());
-                URI hasLatitudeStandardDevs = factory.createURI(DFKINIF.standardDeviationLatitude.getURI());
-                URI hasLongitudeStandardDevs = factory.createURI(DFKINIF.standardDeviationLongitude.getURI());
+                URI hasLatitudeStandardDevs = factory.createURI(DKTNIF.standardDeviationLatitude.getURI());
+                URI hasLongitudeStandardDevs = factory.createURI(DKTNIF.standardDeviationLongitude.getURI());
 
                 if(docList!=null){
                 	Set<String> keys = docList.keySet();
@@ -142,12 +144,12 @@ public class ESesameService {
 		                	openrdfModel.add(st1);
                     	}
                     	*/
-                    	if(k.equalsIgnoreCase(DFKINIF.averageLatitude.getURI())){
+                    	if(k.equalsIgnoreCase(DKTNIF.averageLatitude.getURI())){
                     		Literal literalText = factory.createLiteral(docList.get(k));
 		                    Statement st1 = factory.createStatement(doc, hasLatitudeAverage, literalText);
 		                	openrdfModel.add(st1);
                     	}
-                    	else if(k.equalsIgnoreCase(DFKINIF.averageLongitude.getURI())){
+                    	else if(k.equalsIgnoreCase(DKTNIF.averageLongitude.getURI())){
                     		Literal literalText = factory.createLiteral(docList.get(k));
 		                    Statement st1 = factory.createStatement(doc, hasLongitudeAverage, literalText);
 		                	openrdfModel.add(st1);
@@ -159,19 +161,34 @@ public class ESesameService {
 		                	openrdfModel.add(st1);
                     	}
                     	*/
-                    	else if(k.equalsIgnoreCase(DFKINIF.standardDeviationLatitude.getURI())){
+                    	else if(k.equalsIgnoreCase(DKTNIF.standardDeviationLatitude.getURI())){
 		                    Literal literalText = factory.createLiteral(docList.get(k));
-		                    Statement st1 = factory.createStatement(doc, hasLatitudeStandardDevs, literalText);
+		                    Statement st1 = factory.createStatement(doc, factory.createURI(DKTNIF.standardDeviationLatitude.getURI()), literalText);
 		                	openrdfModel.add(st1);
                     	}
-                    	else if(k.equalsIgnoreCase(DFKINIF.standardDeviationLongitude.getURI())){
+                    	else if(k.equalsIgnoreCase(DKTNIF.standardDeviationLongitude.getURI())){
 		                    Literal literalText = factory.createLiteral(docList.get(k));
 		                    Statement st1 = factory.createStatement(doc, hasLongitudeStandardDevs, literalText);
 		                	openrdfModel.add(st1);
                     	}
-                    	else if(k.equalsIgnoreCase(NIF.meanDateRange.getURI())){
+                    	else if(k.equalsIgnoreCase(DKTNIF.meanDateStart.getURI())){
 		                    Literal literalText = factory.createLiteral(docList.get(k));
-		                    Statement st1 = factory.createStatement(doc, hasMeanDateRange, literalText);
+		                    Statement st1 = factory.createStatement(doc, hasMeanDateStart, literalText);
+		                	openrdfModel.add(st1);
+                    	}
+                    	else if(k.equalsIgnoreCase(DKTNIF.meanDateEnd.getURI())){
+		                    Literal literalText = factory.createLiteral(docList.get(k));
+		                    Statement st1 = factory.createStatement(doc, hasMeanDateEnd, literalText);
+		                	openrdfModel.add(st1);
+                    	}
+                    	else if(k.equalsIgnoreCase(TIME.intervalStarts.getURI())){
+		                    Literal literalText = factory.createLiteral(docList.get(k));
+		                    Statement st1 = factory.createStatement(doc, hasIntervalStarts, literalText);
+		                	openrdfModel.add(st1);
+                    	}
+                    	else if(k.equalsIgnoreCase(TIME.intervalFinishes.getURI())){
+                    		Literal literalText = factory.createLiteral(docList.get(k));
+                    		Statement st1 = factory.createStatement(doc, hasIntervalFinishes, literalText);
 		                	openrdfModel.add(st1);
                     	}
                     	else if(k.equalsIgnoreCase(NIF.isString.getURI())){
@@ -212,11 +229,6 @@ public class ESesameService {
 	                    	else if(k2.equalsIgnoreCase(NIF.orgType.getURI())){
 			                    Literal text = factory.createLiteral(map.get(k2));
 			                    Statement st1 = factory.createStatement(entURI, hasOrganizationType, text);
-			                	openrdfModel.add(st1);
-	                    	}
-	                    	else if(k2.equalsIgnoreCase(NIF.normalizedDate.getURI())){
-			                    Literal text = factory.createLiteral(map.get(k2));
-			                    Statement st1 = factory.createStatement(entURI, hasNormalizedDate, text);
 			                	openrdfModel.add(st1);
 	                    	}
 	                    	else if(k2.equalsIgnoreCase(GEO.latitude.getURI())){
@@ -305,29 +317,7 @@ public class ESesameService {
     	}
     }
 
-    public String retrieveEntitiesFromString(String storageName, String storagePath, String inputRDFData)
-            throws ExternalServiceFailedException, BadRequestException {
-        try {
-        	ParameterChecker.checkNotNullOrEmpty(storageName, "Storage Name", logger);
-        	ParameterChecker.checkNotNullOrEmpty(inputRDFData, "inputRDFData", logger);
-
-        	if(storagePath!=null && !storagePath.equalsIgnoreCase("")){
-        		if(!storagePath.endsWith(File.separator)){
-        			storagePath += File.separator;
-        		}
-        		SesameStorage.setStorageDirectory(storagePath);
-        	}
-        	
-       		String nifResult = SesameStorage.retrieveTriplets(storageName, inputRDFData);
-       		
-           	return nifResult;
-        } catch (BadRequestException e) {
-        	logger.error(e.getMessage());
-            throw e;
-    	} 
-    }
-
-    public String retrieveEntitiesFromSPARQL(String storageName, String storagePath, String inputSPARQLQuery)
+    public String retrieveEntitiesFromSPARQL(String storageName, String storagePath, String inputSPARQLQuery, String outformat)
             throws ExternalServiceFailedException, BadRequestException {
         try {
         	ParameterChecker.checkNotNullOrEmpty(storageName, "Storage Name", logger);
@@ -340,7 +330,7 @@ public class ESesameService {
         		SesameStorage.setStorageDirectory(storagePath);
         	}
         	
-       		String nifResult = SesameStorage.retrieveTripletsFromSPARQL(storageName, inputSPARQLQuery);
+       		String nifResult = SesameStorage.retrieveTripletsFromSPARQL(storageName, inputSPARQLQuery, outformat);
        		
            	return nifResult;
         } catch (BadRequestException e) {
@@ -349,7 +339,30 @@ public class ESesameService {
     	} 
     }
 
-    public String retrieveEntitiesFromTriplet(String storageName, String storagePath, String subject, String predicate, String object)
+
+    public String retrieveEntitiesFromString(String storageName, String storagePath, String inputRDFData, String outformat)
+            throws ExternalServiceFailedException, BadRequestException {
+        try {
+        	ParameterChecker.checkNotNullOrEmpty(storageName, "Storage Name", logger);
+        	ParameterChecker.checkNotNullOrEmpty(inputRDFData, "inputRDFData", logger);
+
+        	if(storagePath!=null && !storagePath.equalsIgnoreCase("")){
+        		if(!storagePath.endsWith(File.separator)){
+        			storagePath += File.separator;
+        		}
+        		SesameStorage.setStorageDirectory(storagePath);
+        	}
+        	
+       		String nifResult = SesameStorage.retrieveTriplets(storageName, inputRDFData, outformat);
+       		
+           	return nifResult;
+        } catch (BadRequestException e) {
+        	logger.error(e.getMessage());
+            throw e;
+    	} 
+    }
+    
+    public String retrieveEntitiesFromTriplet(String storageName, String storagePath, String subject, String predicate, String object, String outformat)
             throws ExternalServiceFailedException, BadRequestException {
         try {
         	if( (subject==null || subject.equals("")) && (predicate==null || predicate.equals("")) && (object==null || object.equals("")) ){
@@ -366,7 +379,7 @@ public class ESesameService {
         		SesameStorage.setStorageDirectory(storagePath);
         	}
         	
-       		String nifResult = SesameStorage.retrieveTriplets(storageName, subject, predicate, object);
+       		String nifResult = SesameStorage.retrieveTriplets(storageName, subject, predicate, object, outformat);
            	return nifResult;
         } catch (BadRequestException e) {
         	logger.error(e.getMessage());
@@ -374,7 +387,7 @@ public class ESesameService {
     	} 
     }
 
-    public String retrieveEntitiesFromNIF(String storageName, String storagePath, String nifData)
+    public String retrieveEntitiesFromNIF(String storageName, String storagePath, String nifData, String outformat)
             throws ExternalServiceFailedException, BadRequestException {
         try {
         	ParameterChecker.checkNotNullOrEmpty(storageName, "Storage Name", logger);
@@ -387,7 +400,7 @@ public class ESesameService {
         		SesameStorage.setStorageDirectory(storagePath);
         	}
         	
-       		String nifResult = SesameStorage.retrieveTripletsFromNIF(storageName, nifData);
+       		String nifResult = SesameStorage.retrieveTripletsFromNIF(storageName, nifData, outformat);
            	return nifResult;
         } catch (BadRequestException e) {
         	logger.error(e.getMessage());

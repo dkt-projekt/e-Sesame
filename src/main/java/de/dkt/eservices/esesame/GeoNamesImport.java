@@ -2,52 +2,21 @@ package de.dkt.eservices.esesame;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileReader;
-import java.io.InputStreamReader;
 import java.io.LineNumberReader;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Queue;
-import java.util.Set;
-import java.util.Stack;
-import java.util.concurrent.LinkedBlockingQueue;
 
-import org.apache.activemq.filter.function.replaceFunction;
 import org.openrdf.model.Literal;
 import org.openrdf.model.Model;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
-import org.openrdf.model.Value;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.impl.LinkedHashModel;
 import org.openrdf.model.impl.ValueFactoryImpl;
-import org.openrdf.query.BindingSet;
-import org.openrdf.query.TupleQuery;
-import org.openrdf.query.TupleQueryResult;
-import org.openrdf.query.TupleQueryResultHandler;
-import org.openrdf.query.resultio.sparqlxml.SPARQLResultsXMLParser;
-import org.openrdf.query.resultio.sparqlxml.SPARQLResultsXMLParserFactory;
-
-import com.hp.hpl.jena.rdf.model.ModelFactory;
 
 import de.dkt.common.filemanagement.FileFactory;
-import de.dkt.common.niftools.DFKINIF;
 import de.dkt.common.niftools.GEO;
-import de.dkt.common.niftools.ITSRDF;
-import de.dkt.common.niftools.NIF;
-import de.dkt.common.niftools.NIFReader;
-import de.dkt.common.tools.ParameterChecker;
-import de.dkt.common.tools.ResponseGenerator;
 import de.dkt.eservices.esesame.modules.SesameStorage;
-import eu.freme.common.conversion.rdf.JenaRDFConversionService;
-import eu.freme.common.conversion.rdf.RDFConstants.RDFSerialization;
-import eu.freme.common.conversion.rdf.RDFConversionService;
-import eu.freme.common.exception.BadRequestException;
-import eu.freme.common.exception.ExternalServiceFailedException;
 
 public class GeoNamesImport {
 
@@ -130,7 +99,7 @@ public class GeoNamesImport {
 		Date d1 = new Date();
 		SesameStorage.setStorageDirectory(storagePath);
 		
-		String output = SesameStorage.retrieveTriplets(storageName, null, null, null);
+		String output = SesameStorage.retrieveTriplets(storageName, null, null, null, "text/turtle");
 		System.out.println("Repository information: "+output);
 
 		Date d2 = new Date();
