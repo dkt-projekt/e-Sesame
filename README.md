@@ -18,14 +18,16 @@ In addition to the input, informat and outformat parameters, the following param
 
 `storagePath`: (optional) path of the sesame (triple storage) where the information must be stored.
 
+`storageCreate`: boolean value defining if the repository has to be created.
+
 `inputDataFormat`: parameter that specifies the format in which the information is provided to the service. It can have three different values: `param`, `body`, or `triple`.
 
-`inputDataMimeType`: in case that the service is receiving a string (`param` and `body` formats), this parameter specifies the mime type of the string (plaintext, RDF/XML, JSON).
+`inputDataMimeType`: in case that the service is receiving a string (`param` and `body` formats), this parameter specifies the mime type of the string (RDF/XML, JSON).
 
 If the `inputDataFormat` is `param`: 
 - `input`: the input is a string and is given as parameter. 
 
-If the `inputDataFormat` is `param`: 
+If the `inputDataFormat` is `body`: 
 - `body`: the input is a string and is given in the body of the request. 
 
 If the `inputDataFormat` is `triple`: the information to be stored is given as a triple defined by its three properties:  
