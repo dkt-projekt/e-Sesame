@@ -16,13 +16,13 @@
   <parent>
   	<groupId>eu.freme.e-services</groupId>
   	<artifactId>e-service-parent</artifactId>
-  	<version>0.1-SNAPSHOT</version>
+  	<version>0.1</version>
   </parent>
     <dependencies>
   	<dependency>
   		<groupId>eu.freme.bservices</groupId>
   		<artifactId>test-helper</artifactId>
-  		<version>0.1-SNAPSHOT</version>
+  		<version>0.1</version>
   	</dependency>
   <dependency>
 	<groupId>ch.qos.logback</groupId>
@@ -82,7 +82,7 @@
 		<dependency>
 			<groupId>de.dkt</groupId>
 			<artifactId>DKTCommon</artifactId>
-			<version>0.2-SNAPSHOT</version>
+			<version>0.2</version>
 		</dependency>
 		<dependency>
 			<groupId>org.scala-lang</groupId>
@@ -136,4 +136,10 @@
 			<url>http://v35731.1blu.de:8081/nexus/content/repositories/snapshots</url>
 		</snapshotRepository>
 	</distributionManagement>
+        <scm>
+                <connection>scm:git:git@github.com:dkt-projekt/e-Sesame.git</connection>
+                <url>scm:git:git@github.com/dkt-projekt/e-Sesame.git</url>
+                <developerConnection>scm:git:git@github.com:dkt-projekt/e-Sesame.git</developerConnection>
+                <tag>HEAD</tag>
+</scm>
 </project>
