@@ -16,7 +16,7 @@ In addition to the input, informat and outformat parameters, the following param
 
 `storageName`: name of the sesame (triple storage) where the information must be stored.
 
-`storagePath`: (optional) path of the sesame (triple storage) where the information must be stored.
+`storagePath`: path of the sesame (triple storage) where the information must be stored, set it to `/opt/tmp/storage/sesameStorage/`
 
 `storageCreate`: boolean value defining if the repository has to be created.
 
