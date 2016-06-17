@@ -58,7 +58,6 @@ public class SesameStorage {
 	static Logger logger = Logger.getLogger(SesameStorage.class);
 
 	private static String storageDirectory;
-//	private static String storageDirectory = "C:\\Users\\jmschnei\\Desktop\\dkt-test\\sesame\\";
 
 	private static boolean storageCreate;
 
@@ -110,8 +109,6 @@ public class SesameStorage {
 			else{
 				f = FileFactory.generateFileInstance(storageDirectory + storageName);
 			}			
-//			ClassPathResource cpr = new ClassPathResource(storageDirectory + storageName);
-//			Repository rep = new SailRepository(new NativeStore(cpr.getFile()));
 			Repository rep = new SailRepository(new NativeStore(f));
 			rep.initialize();
 
@@ -222,19 +219,6 @@ public class SesameStorage {
 				
 				RepositoryResult<Statement> statements =  conn.getStatements(subject, predicate, object, true);
 
-//				System.out.println(statements.hasNext());
-//				int counter=  0;
-//				while(statements.hasNext()){
-//					Statement st = statements.next();
-//					String s3 = st.getObject().stringValue();
-//					if(s3.contains("person") || s3.contains("Person")){
-//						System.out.println(s3);
-//					}
-//					counter++;
-//				}
-//				System.out.println(counter);
-
-//				System.exit(0);
 				Model model = Iterations.addAll(statements, new LinkedHashModel());
 				ModelManagement.addNamespaces(model);
 				RDFFormat format = RDFFormat.forMIMEType(outformat);

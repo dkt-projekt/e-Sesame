@@ -22,7 +22,6 @@ import eu.freme.common.exception.ExternalServiceFailedException;
 import eu.freme.common.rest.BaseRestController;
 import eu.freme.common.rest.NIFParameterSet;
 
-
 @RestController
 public class ESesameServiceStandAlone extends BaseRestController {
 	

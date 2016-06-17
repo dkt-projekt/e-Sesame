@@ -13,6 +13,7 @@ import org.openrdf.rio.Rio;
 import de.dkt.common.niftools.DBO;
 import de.dkt.common.niftools.GEO;
 import de.dkt.common.niftools.NIF;
+import de.dkt.common.niftools.TIME;
 
 public class ModelManagement {
 
@@ -24,6 +25,7 @@ public class ModelManagement {
 		model.setNamespace("nif", NIF.getURI());
 		model.setNamespace("dbo", DBO.uri);
 		model.setNamespace("geo", GEO.uri);
+		model.setNamespace("time", TIME.uri);
 	}
 	
 	public static String model2String (Model m,RDFFormat format) throws RDFHandlerException {

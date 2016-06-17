@@ -49,6 +49,16 @@ public class ESesameService {
 	private String storageLocation="/Users/jumo04/Documents/DFKI/DKT/dkt-test/testTimelining/sesameStorage/";
 	
 	public ESesameService() {
+		String OS = System.getProperty("os.name");
+		if(OS.startsWith("Mac")){
+			storageLocation = "/Users/jumo04/Documents/DFKI/DKT/dkt-test/testTimelining/sesameStorage/";
+		}
+		else if(OS.startsWith("Windows")){
+			storageLocation = "C:/tests/sesame/";
+		}
+		else if(OS.startsWith("Linux")){
+			storageLocation = "/opt/tmp/storage/sesameStorage/";
+		}
 		SesameStorage.setStorageDirectory(storageLocation);
 	}
 	
@@ -76,7 +86,6 @@ public class ESesameService {
 //		System.out.println(service.retrieveEntitiesFromTriplet("testComplete/", null, null, null));
 		String response = service.retrieveEntitiesFromTriplet("parrotTest", null, null, null, null,"text/turtle");
 		System.out.println(response);
-
 	}
 	
     public String storeEntitiesFromString(String storageName, String storagePath, boolean storageCreate, String inputText, String inputDataMimeType)
