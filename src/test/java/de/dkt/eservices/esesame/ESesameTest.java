@@ -66,7 +66,7 @@ public class ESesameTest {
 		return Unirest.post(url);
 	}
 	
-	/*@Test
+	@Test
 	public void test1_SanityCheck() throws UnirestException, IOException,
 			Exception {
 
@@ -116,7 +116,7 @@ public class ESesameTest {
 				.queryString("storageCreate", true)
 				.queryString("input", TestConstants.inputData)
 				.queryString("inputDataFormat", "param")
-				.queryString("inputDataMimeType", "NIF")
+				.queryString("inputDataMimeType", "text/turtle")
 				.asString();
 		assertTrue(response.getStatus() == 200);
 		assertTrue(response.getBody().length() > 0);
@@ -129,7 +129,7 @@ public class ESesameTest {
 				.queryString("storageCreate", true)
 				.queryString("input", TestConstants.inputData)
 				.queryString("inputDataFormat", "body")
-				.queryString("inputDataMimeType", "NIF")
+				.queryString("inputDataMimeType", "text/turtle")
 				.body(TestConstants.inputData)
 				.asString();
 
@@ -166,7 +166,7 @@ public class ESesameTest {
 				+ "<http://de.dkt.sesame/ontology/doc2>"
 				+ " has been properly included in tripleSTORE: test2",response.getBody());
 
-	}*/
+	}
 
 	@Test
 	public void test5_StoreStringLocalClasspathStorage() throws UnirestException, IOException,Exception {
@@ -177,11 +177,12 @@ public class ESesameTest {
 				.queryString("storageName", "sesame2")
 				.queryString("storagePath", "storage")
 				.queryString("storageCreate", true)
-				.queryString("input", TestConstants.inputDataRDF3)
 				.queryString("inputDataFormat", "param")
-//				.queryString("inputDataMimeType", "text/turtle")
+				.queryString("input", TestConstants.inputData)
+				.queryString("inputDataMimeType", "text/turtle")
 //				.queryString("inputDataMimeType", "application/rdf+xml")
-				.queryString("inputDataMimeType", "application/json")
+//				.queryString("input", TestConstants.inputDataRDF3)
+//				.queryString("inputDataMimeType", "application/json")
 				.asString();
 		assertTrue(response.getStatus() == 200);
 		assertTrue(response.getBody().length() > 0);
@@ -207,7 +208,7 @@ public class ESesameTest {
 		System.out.println(response.getBody());*/
 	}
 	
-	/*@Test
+	@Test
 	public void test6_RetrieveTripletLocalClasspathStorage() throws UnirestException, IOException,Exception {
 		
 		String expectedOutput = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
@@ -218,7 +219,9 @@ public class ESesameTest {
 				+"\txmlns:foaf=\"http://xmlns.com/foaf/0.1/\"\n"
 				+"\txmlns:nif=\"http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-core#\"\n"
 				+"\txmlns:dbo=\"http://dbpedia.org/ontology/\"\n"
-				+"\txmlns:geo=\"http://www.w3.org/2003/01/geo/wgs84_pos/\">\n"
+				+"\txmlns:geo=\"http://www.w3.org/2003/01/geo/wgs84_pos/\"\n"
+				+"\txmlns:time=\"http://www.w3.org/2006/time#\">\n"
+				
 				+"\n"
 			+"<rdf:Description rdf:about=\"http://de.dkt.sesame/ontology/doc1\">\n"
 			+"	<mentions xmlns=\"http://de.dkt.sesame/ontology/\" rdf:resource=\"http://de.dkt.sesame/ontology/doc2\"/>\n"
@@ -279,7 +282,7 @@ public class ESesameTest {
 		assertTrue(response.getBody().length() > 0);
 		Assert.assertEquals(expectedOutput,response.getBody());
 
-	}*/
+	}
 
 	/*@Test
 	public void test7_RetrieveEntityStringLocalClasspathStorage() throws UnirestException, IOException,Exception {
