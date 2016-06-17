@@ -66,7 +66,7 @@ public class ESesameTest {
 		return Unirest.post(url);
 	}
 	
-	@Test
+	/*@Test
 	public void test1_SanityCheck() throws UnirestException, IOException,
 			Exception {
 
@@ -166,7 +166,7 @@ public class ESesameTest {
 				+ "<http://de.dkt.sesame/ontology/doc2>"
 				+ " has been properly included in tripleSTORE: test2",response.getBody());
 
-	}
+	}*/
 
 	@Test
 	public void test5_StoreStringLocalClasspathStorage() throws UnirestException, IOException,Exception {
@@ -174,17 +174,23 @@ public class ESesameTest {
 		HttpResponse<String> response = storageRequest()
 				.queryString("informat", "text")
 				.queryString("outformat", "turtle")
-				.queryString("storageName", "test3")
+				.queryString("storageName", "sesame2")
 				.queryString("storagePath", "storage")
 				.queryString("storageCreate", true)
-				.queryString("input", TestConstants.inputData)
+				.queryString("input", TestConstants.inputDataRDF3)
 				.queryString("inputDataFormat", "param")
-				.queryString("inputDataMimeType", "NIF")
+//				.queryString("inputDataMimeType", "text/turtle")
+//				.queryString("inputDataMimeType", "application/rdf+xml")
+				.queryString("inputDataMimeType", "application/json")
 				.asString();
 		assertTrue(response.getStatus() == 200);
 		assertTrue(response.getBody().length() > 0);
-
-		HttpResponse<String> response2 = storageRequest()
+ 
+		System.out.println("----------------HERE----------------------------------------");
+		System.out.println(response.getBody());
+		
+		
+		/*HttpResponse<String> response2 = storageRequest()
 				.queryString("informat", "text")
 				.queryString("outformat", "turtle")
 				.queryString("storageName", "test4")
@@ -198,10 +204,10 @@ public class ESesameTest {
 
 		assertTrue(response2.getStatus() == 200);
 		assertTrue(response2.getBody().length() > 0);
-		System.out.println(response.getBody());
+		System.out.println(response.getBody());*/
 	}
 	
-	@Test
+	/*@Test
 	public void test6_RetrieveTripletLocalClasspathStorage() throws UnirestException, IOException,Exception {
 		
 		String expectedOutput = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
@@ -273,9 +279,9 @@ public class ESesameTest {
 		assertTrue(response.getBody().length() > 0);
 		Assert.assertEquals(expectedOutput,response.getBody());
 
-	}
+	}*/
 
-	@Test
+	/*@Test
 	public void test7_RetrieveEntityStringLocalClasspathStorage() throws UnirestException, IOException,Exception {
 		
 		String expectedOutput = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
@@ -342,9 +348,9 @@ public class ESesameTest {
 		Assert.assertEquals(response.getStatus(), 200);
 		assertTrue(response.getBody().length() > 0);
 		Assert.assertEquals(expectedOutput,response.getBody());
-	}
+	}*/
 	
-	@Test
+	/*@Test
 	public void test8_RetrieveSparqlStringLocalClasspathStorage() throws UnirestException, IOException,Exception {
 		
 		String expectedOutput = "" +
@@ -388,9 +394,9 @@ public class ESesameTest {
 		Assert.assertEquals(response.getStatus(), 200);
 		assertTrue(response.getBody().length() > 0);
 		Assert.assertEquals(expectedOutput,response.getBody());
-	}
+	}*/
 
-	@Test
+	/*@Test
 	public void test9_RetrieveNIFStringLocalClasspathStorage() throws UnirestException, IOException,Exception {
 		
 		String expectedOutput = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
@@ -457,5 +463,5 @@ public class ESesameTest {
 		Assert.assertEquals(response.getStatus(), 200);
 		assertTrue(response.getBody().length() > 0);
 		Assert.assertEquals(expectedOutput,response.getBody());
-	}
+	}*/
 }

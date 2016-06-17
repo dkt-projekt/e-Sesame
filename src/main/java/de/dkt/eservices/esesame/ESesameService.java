@@ -103,14 +103,15 @@ public class ESesameService {
         	}
         	
         	String nifResult;
-        	if(inputDataMimeType.equalsIgnoreCase("NIF")){
+        	if((inputDataMimeType.equalsIgnoreCase("application/rdf+xml")||inputDataMimeType.equalsIgnoreCase("text/turtle")||inputDataMimeType.equalsIgnoreCase("application/json"))){
         		
         		com.hp.hpl.jena.rdf.model.Model jenaModel = ModelFactory.createDefaultModel();
         		try{
-            		jenaModel = rdfConversionService.unserializeRDF(inputText, RDFSerialization.RDF_XML);
+            		jenaModel = rdfConversionService.unserializeRDF(inputText, RDFSerialization.fromValue(inputDataMimeType));
         		}
         		catch(Exception e){
-            		jenaModel = rdfConversionService.unserializeRDF(inputText, RDFSerialization.TURTLE);
+        			System.out.println("input doesn't match input type");
+            		//jenaModel = rdfConversionService.unserializeRDF(inputText, RDFSerialization.TURTLE);
         		}
 
         		String docURI = NIFReader.extractDocumentURI(jenaModel);
