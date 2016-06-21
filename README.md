@@ -24,7 +24,7 @@ In addition to the input, informat and outformat parameters, the following param
 
 `inputDataFormat`: parameter that specifies the format in which the information is provided to the service. It can have three different values: `param`, `body`, or `triple`.
 
-`inputDataMimeType`: in case that the service is receiving a string (`param` and `body` formats), this parameter specifies the mime type of the string (RDF/XML, JSON).
+`inputDataMimeType`: in case that the service is receiving a string (`param` and `body` formats), this parameter specifies the mime type of the string (`text/turtle`, `application/rdf+xml` or `application/ld+json`).
 
 If the `inputDataFormat` is `param`: 
 - `input`: the input is a string and is given as parameter. 
