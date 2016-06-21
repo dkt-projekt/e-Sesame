@@ -94,7 +94,7 @@ public class ESesameService {
         	}
         	
         	String nifResult;
-        	if((inputDataMimeType.equalsIgnoreCase("application/rdf+xml")||inputDataMimeType.equalsIgnoreCase("text/turtle")||inputDataMimeType.equalsIgnoreCase("application/json"))){
+        	if((inputDataMimeType.equalsIgnoreCase("application/rdf+xml")||inputDataMimeType.equalsIgnoreCase("text/turtle")||inputDataMimeType.equalsIgnoreCase("application/ld+json"))){
         		
         		com.hp.hpl.jena.rdf.model.Model jenaModel = ModelFactory.createDefaultModel();
         		try{
