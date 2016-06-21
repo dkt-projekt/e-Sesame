@@ -47,7 +47,7 @@ public class ESesameTest {
 			indexPath = "C:/tests/luceneindexes/";
 		}
 		else if(OS.startsWith("Linux")){
-			indexPath = "/opt/tmp/storage/sesameStorage/";
+			indexPath = "/home/sabine/Schreibtisch/test/";
 			
 		}
 	}
