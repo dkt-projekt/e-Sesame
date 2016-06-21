@@ -252,7 +252,9 @@ public class ESesameTest {
 				+"\txmlns:foaf=\"http://xmlns.com/foaf/0.1/\"\n"
 				+"\txmlns:nif=\"http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-core#\"\n"
 				+"\txmlns:dbo=\"http://dbpedia.org/ontology/\"\n"
-				+"\txmlns:geo=\"http://www.w3.org/2003/01/geo/wgs84_pos/\">\n"
+				+"\txmlns:geo=\"http://www.w3.org/2003/01/geo/wgs84_pos/\"\n"
+				+"\txmlns:time=\"http://www.w3.org/2006/time#\">\n"
+				
 				+"\n"
 			+"<rdf:Description rdf:about=\"http://de.dkt.sesame/ontology/doc1\">\n"
 			+"	<mentions xmlns=\"http://de.dkt.sesame/ontology/\" rdf:resource=\"http://de.dkt.sesame/ontology/doc2\"/>\n"
