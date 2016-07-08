@@ -80,31 +80,31 @@ public class ESesameTest {
 
 	}
 	
-	@Test
-	public void test2_StoreTripletLocalFilesystemStorage() throws UnirestException, IOException,Exception {
-		HttpResponse<String> response = storageRequest()
-				.queryString("informat", "text")
-				.queryString("input", "hello world")
-				.queryString("outformat", "turtle")
-				.queryString("storageName", "test2")
-				.queryString("storagePath", indexPath)
-				.queryString("storageCreate", true)
-				.queryString("inputDataFormat", "triple")
-				.queryString("inputDataMimeType", "NOT IMPORTANT")
-				.queryString("subject", "http://de.dkt.sesame/ontology/doc1")
-				.queryString("object", "http://de.dkt.sesame/ontology/doc2")
-				.queryString("predicate", "http://de.dkt.sesame/ontology/mentions")
-				.queryString("namespace", "")
-				.asString();
-
-		Assert.assertEquals(200, response.getStatus());
-		assertTrue(response.getBody().length() > 0);
-		Assert.assertEquals("<http://de.dkt.sesame/ontology/doc1> "
-				+ "<http://de.dkt.sesame/ontology/mentions> "
-				+ "<http://de.dkt.sesame/ontology/doc2>"
-				+ " has been properly included in tripleSTORE: test2",response.getBody());
-
-	}
+//	@Test
+//	public void test2_StoreTripletLocalFilesystemStorage() throws UnirestException, IOException,Exception {
+//		HttpResponse<String> response = storageRequest()
+//				.queryString("informat", "text")
+//				.queryString("input", "hello world")
+//				.queryString("outformat", "turtle")
+//				.queryString("storageName", "test2")
+//				.queryString("storagePath", indexPath)
+//				.queryString("storageCreate", true)
+//				.queryString("inputDataFormat", "triple")
+//				.queryString("inputDataMimeType", "NOT IMPORTANT")
+//				.queryString("subject", "http://de.dkt.sesame/ontology/doc1")
+//				.queryString("object", "http://de.dkt.sesame/ontology/doc2")
+//				.queryString("predicate", "http://de.dkt.sesame/ontology/mentions")
+//				.queryString("namespace", "")
+//				.asString();
+//
+//		Assert.assertEquals(200, response.getStatus());
+//		assertTrue(response.getBody().length() > 0);
+//		Assert.assertEquals("<http://de.dkt.sesame/ontology/doc1> "
+//				+ "<http://de.dkt.sesame/ontology/mentions> "
+//				+ "<http://de.dkt.sesame/ontology/doc2>"
+//				+ " has been properly included in tripleSTORE: test2",response.getBody());
+//
+//	}
 
 	@Test
 	public void test3_StoreStringLocalFilesystemStorage() throws UnirestException, IOException,Exception {
@@ -317,75 +317,75 @@ public class ESesameTest {
 
 	}
 
-	@Test
-	public void test7_RetrieveEntityStringLocalClasspathStorage() throws UnirestException, IOException,Exception {
-		
-		String expectedOutput = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-				+"<rdf:RDF\n"
-				+"\txmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"\n"
-				+"\txmlns:rdfs=\"http://www.w3.org/2000/01/rdf-schema#\"\n"
-				+"\txmlns:xsd=\"http://www.w3.org/2001/XMLSchema#\"\n"
-				+"\txmlns:foaf=\"http://xmlns.com/foaf/0.1/\"\n"
-				+"\txmlns:nif=\"http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-core#\"\n"
-				+"\txmlns:dbo=\"http://dbpedia.org/ontology/\"\n"
-				+"\txmlns:geo=\"http://www.w3.org/2003/01/geo/wgs84_pos/\"\n"
-				+"\txmlns:time=\"http://www.w3.org/2006/time#\">\n"
-				+"\n"
-			+"<rdf:Description rdf:about=\"http://de.dkt.sesame/ontology/doc1\">\n"
-			+"	<mentions xmlns=\"http://de.dkt.sesame/ontology/\" rdf:resource=\"http://de.dkt.sesame/ontology/doc2\"/>\n"
-			+"</rdf:Description>\n"
-			+"\n"
-			+"</rdf:RDF>"
-			+ "";
-		
-		HttpResponse<String> response = retrievalRequest()
-				.queryString("informat", "text/plain")
-				.queryString("input", "http://de.dkt.sesame/ontology/doc1")
-				.queryString("outformat", "application/rdf+xml")
-				.queryString("storageName", "test2")
-				.queryString("storagePath", indexPath)
-				.queryString("inputDataType", "entity")
-				.queryString("inputData", "")
-//				.queryString("subject", "")
-//				.queryString("object", "http://de.dkt.sesame/ontology/doc2")
-//				.queryString("predicate", "http://de.dkt.sesame/ontology/mentions")
-				.asString();
-		Assert.assertEquals(response.getStatus(), 200);
-		assertTrue(response.getBody().length() > 0);
-		Assert.assertEquals(expectedOutput,response.getBody());
-
-		response = retrievalRequest()
-				.queryString("informat", "text/plain")
-				.queryString("input", "http://de.dkt.sesame/ontology/mentions")
-				.queryString("outformat", "application/rdf+xml")
-				.queryString("storageName", "test2")
-				.queryString("storagePath", indexPath)
-				.queryString("inputDataType", "entity")
-				.queryString("inputData", "")
-//				.queryString("subject", "")
-//				.queryString("object", "http://de.dkt.sesame/ontology/doc2")
-//				.queryString("predicate", "http://de.dkt.sesame/ontology/mentions")
-				.asString();
-		Assert.assertEquals(response.getStatus(), 200);
-		assertTrue(response.getBody().length() > 0);
-		Assert.assertEquals(expectedOutput,response.getBody());
-		
-		response = retrievalRequest()
-				.queryString("informat", "text/plain")
-				.queryString("input", "http://de.dkt.sesame/ontology/doc2")
-				.queryString("outformat", "application/rdf+xml")
-				.queryString("storageName", "test2")
-				.queryString("storagePath", indexPath)
-				.queryString("inputDataType", "entity")
-				.queryString("inputData", "")
-//				.queryString("subject", "")
-//				.queryString("object", "http://de.dkt.sesame/ontology/doc2")
-//				.queryString("predicate", "http://de.dkt.sesame/ontology/mentions")
-				.asString();
-		Assert.assertEquals(response.getStatus(), 200);
-		assertTrue(response.getBody().length() > 0);
-		Assert.assertEquals(expectedOutput,response.getBody());
-	}
+//	@Test
+//	public void test7_RetrieveEntityStringLocalClasspathStorage() throws UnirestException, IOException,Exception {
+//		
+//		String expectedOutput = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+//				+"<rdf:RDF\n"
+//				+"\txmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"\n"
+//				+"\txmlns:rdfs=\"http://www.w3.org/2000/01/rdf-schema#\"\n"
+//				+"\txmlns:xsd=\"http://www.w3.org/2001/XMLSchema#\"\n"
+//				+"\txmlns:foaf=\"http://xmlns.com/foaf/0.1/\"\n"
+//				+"\txmlns:nif=\"http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-core#\"\n"
+//				+"\txmlns:dbo=\"http://dbpedia.org/ontology/\"\n"
+//				+"\txmlns:geo=\"http://www.w3.org/2003/01/geo/wgs84_pos/\"\n"
+//				+"\txmlns:time=\"http://www.w3.org/2006/time#\">\n"
+//				+"\n"
+//			+"<rdf:Description rdf:about=\"http://de.dkt.sesame/ontology/doc1\">\n"
+//			+"	<mentions xmlns=\"http://de.dkt.sesame/ontology/\" rdf:resource=\"http://de.dkt.sesame/ontology/doc2\"/>\n"
+//			+"</rdf:Description>\n"
+//			+"\n"
+//			+"</rdf:RDF>"
+//			+ "";
+//		
+//		HttpResponse<String> response = retrievalRequest()
+//				.queryString("informat", "text/plain")
+//				.queryString("input", "http://de.dkt.sesame/ontology/doc1")
+//				.queryString("outformat", "application/rdf+xml")
+//				.queryString("storageName", "test2")
+//				.queryString("storagePath", indexPath)
+//				.queryString("inputDataType", "entity")
+//				.queryString("inputData", "")
+////				.queryString("subject", "")
+////				.queryString("object", "http://de.dkt.sesame/ontology/doc2")
+////				.queryString("predicate", "http://de.dkt.sesame/ontology/mentions")
+//				.asString();
+//		Assert.assertEquals(response.getStatus(), 200);
+//		assertTrue(response.getBody().length() > 0);
+//		Assert.assertEquals(expectedOutput,response.getBody());
+//
+//		response = retrievalRequest()
+//				.queryString("informat", "text/plain")
+//				.queryString("input", "http://de.dkt.sesame/ontology/mentions")
+//				.queryString("outformat", "application/rdf+xml")
+//				.queryString("storageName", "test2")
+//				.queryString("storagePath", indexPath)
+//				.queryString("inputDataType", "entity")
+//				.queryString("inputData", "")
+////				.queryString("subject", "")
+////				.queryString("object", "http://de.dkt.sesame/ontology/doc2")
+////				.queryString("predicate", "http://de.dkt.sesame/ontology/mentions")
+//				.asString();
+//		Assert.assertEquals(response.getStatus(), 200);
+//		assertTrue(response.getBody().length() > 0);
+//		Assert.assertEquals(expectedOutput,response.getBody());
+//		
+//		response = retrievalRequest()
+//				.queryString("informat", "text/plain")
+//				.queryString("input", "http://de.dkt.sesame/ontology/doc2")
+//				.queryString("outformat", "application/rdf+xml")
+//				.queryString("storageName", "test2")
+//				.queryString("storagePath", indexPath)
+//				.queryString("inputDataType", "entity")
+//				.queryString("inputData", "")
+////				.queryString("subject", "")
+////				.queryString("object", "http://de.dkt.sesame/ontology/doc2")
+////				.queryString("predicate", "http://de.dkt.sesame/ontology/mentions")
+//				.asString();
+//		Assert.assertEquals(response.getStatus(), 200);
+//		assertTrue(response.getBody().length() > 0);
+//		Assert.assertEquals(expectedOutput,response.getBody());
+//	}
 	
 	@Test
 	public void test8_RetrieveSparqlStringLocalClasspathStorage() throws UnirestException, IOException,Exception {
