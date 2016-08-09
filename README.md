@@ -37,13 +37,28 @@ If the `inputDataFormat` is `triple`: the information to be stored is given as a
 - `predicate`: predicate of the triple.
 - `object`: object of the triple.
 
-`namespace`: ?????
-
 ### Output
-A document in NIF format annotated with ......
+A string specifying that the model has been correctly stored.
 
 Example cURL post for using the `semantic information storage`:  
-`curl -X POST "http://api.digitale-kuratierung.de/api/e-sesame/storeData?storageName=sesame2&inputDataFormat=param&inputDataMimeType=text&namespace=nose&input=Welcome+to+Berlin+in+2016."`
+>curl -X POST -H "Cache-Control: no-cache" -H "Postman-Token: 13812b74-6407-ac06-7efe-13517f676a13" -d '@prefix dktnif: <http://dkt.dfki.de/ontologies/nif#> .
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+@prefix itsrdf: <http://www.w3.org/2005/11/its/rdf#> .
+@prefix nif:   <http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-core#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+<http://dkt.dfki.de/documents/#char=11,17>
+        a                     nif:RFC5147String , nif:String ;
+        nif:anchorOf          "Berlin"^^xsd:string ;
+        nif:beginIndex        "11"^^xsd:nonNegativeInteger ;
+        nif:endIndex          "17"^^xsd:nonNegativeInteger ;
+        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,26> ;
+        itsrdf:taClassRef     <http://dbpedia.org/ontology/Location> .
+<http://dkt.dfki.de/documents/#char=0,26>
+        a               nif:RFC5147String , nif:String , nif:Context ;
+        nif:beginIndex  "0"^^xsd:nonNegativeInteger ;
+        nif:endIndex    "26"^^xsd:nonNegativeInteger ;
+        nif:isString    "Welcome to Berlin in 2016."^^xsd:string .' "http://dev.digitale-kuratierung.de/api/e-sesame/storeData?storageName=sesame2&inputDataFormat=body&inputDataMimeType=text/turtle&storageCreate=true"
 
 
 ## Retrieval of semantic information
