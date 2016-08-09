@@ -109,33 +109,37 @@ public class ESesameTest {
 	@Test
 	public void test3_StoreStringLocalFilesystemStorage() throws UnirestException, IOException,Exception {
 		
-		HttpResponse<String> response = storageRequest()
-				.queryString("informat", "text")
-				.queryString("outformat", "turtle")
-				.queryString("storageName", "test3")
-				.queryString("storagePath", indexPath)
+//		HttpResponse<String> response = storageRequest()
+//				.queryString("informat", "text")
+//				.queryString("outformat", "turtle")
+//				.queryString("storageName", "test3")
+//				.queryString("storagePath", indexPath)
+//				.queryString("storageCreate", true)
+//				.queryString("input", TestConstants.inputData)
+//				.queryString("inputDataFormat", "param")
+//				.queryString("inputDataMimeType", "text/turtle")
+//				.asString();
+//		assertTrue(response.getStatus() == 200);
+//		assertTrue(response.getBody().length() > 0);
+
+		HttpResponse<String> response2 = storageRequest()
+//				.queryString("informat", "text")
+//				.queryString("outformat", "turtle")
+				.queryString("storageName", "sesame2")
+//				.queryString("storagePath", indexPath)
 				.queryString("storageCreate", true)
 				.queryString("input", TestConstants.inputData)
 				.queryString("inputDataFormat", "param")
-				.queryString("inputDataMimeType", "text/turtle")
-				.asString();
-		assertTrue(response.getStatus() == 200);
-		assertTrue(response.getBody().length() > 0);
-
-		HttpResponse<String> response2 = storageRequest()
-				.queryString("informat", "text")
-				.queryString("outformat", "turtle")
-				.queryString("storageName", "test4")
-				.queryString("storagePath", indexPath)
-				.queryString("storageCreate", true)
-				.queryString("input", TestConstants.inputData)
-				.queryString("inputDataFormat", "body")
-				.queryString("inputDataMimeType", "text/turtle")
+				.queryString("inputDataMimeType", "text")
 				.body(TestConstants.inputData)
 				.asString();
 
+		//?storageName=sesame2&inputDataFormat=param&inputDataMimeType=text&input=Welcome+to+Berlin+in+2016."
+		
 		assertTrue(response2.getStatus() == 200);
 		assertTrue(response2.getBody().length() > 0);
+		
+		System.out.println(response2.getBody());
 	}
 
 	@Test
@@ -264,13 +268,13 @@ public class ESesameTest {
 			+ "";
 		
 		HttpResponse<String> response = retrievalRequest()
-				.queryString("informat", "text/plain")
+//				.queryString("informat", "text/plain")
 				.queryString("input", "http://de.dkt.sesame/ontology/doc1")
 //				.queryString("outformat", "text/turtle")
 				.queryString("outformat", "application/rdf+xml")
 				.queryString("storageName", "test2")
-				.queryString("storagePath", "storage")
-				.queryString("inputDataType", "triple")
+//				.queryString("storagePath", "storage")
+				.queryString("inputDataFormat", "triple")
 				.queryString("inputData", "")
 				.queryString("subject", "http://de.dkt.sesame/ontology/doc1")
 //				.queryString("object", "http://de.dkt.sesame/ontology/doc2")

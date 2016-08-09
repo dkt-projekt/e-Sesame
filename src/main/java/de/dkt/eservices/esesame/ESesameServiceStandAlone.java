@@ -2,6 +2,8 @@ package de.dkt.eservices.esesame;
 
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -14,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import de.dkt.common.feedback.InteractionManagement;
 import de.dkt.common.tools.ParameterChecker;
 import de.dkt.common.tools.ResponseGenerator;
 import eu.freme.common.conversion.rdf.RDFConstants;
@@ -42,6 +45,7 @@ public class ESesameServiceStandAlone extends BaseRestController {
 	
 	@RequestMapping(value = "/e-sesame/storeData", method = { RequestMethod.POST, RequestMethod.GET })
 	public ResponseEntity<String> storeData(
+			HttpServletRequest request,
 			@RequestParam(value = "storageName", required = false) String storageName,
 			@RequestParam(value = "storagePath", required = false) String storagePath,
 			@RequestParam(value = "storageCreate", required = false) boolean storageCreate,
@@ -64,8 +68,11 @@ public class ESesameServiceStandAlone extends BaseRestController {
             		nifResult = service.storeEntitiesFromTriplet(storageName, storagePath, storageCreate, subj, pred, obj, nam);
             	}
         		else{
-        			logger.error("Input triple is NULL");
-        			throw new BadRequestException("Input triple is NULL");
+        			String msg = "Input triple is NULL";
+        			logger.error(msg);
+        			InteractionManagement.sendInteraction("dkt-usage@"+request.getRemoteAddr(), "error", "e-Sesame/storeData", "Input data is not in the proper format ...", 
+        					"", "Exception", msg, "");
+        			throw new BadRequestException(msg);
         		}
     		}
     		else if(inputDataFormat.equalsIgnoreCase("param")){
@@ -75,9 +82,18 @@ public class ESesameServiceStandAlone extends BaseRestController {
     			nifResult = service.storeEntitiesFromString(storageName, storagePath, storageCreate, postBody, inputDataMimeType);
     		}
     		else{
-    			logger.error("Input data is not in the proper format ...");
-    			throw new BadRequestException("Input data is not in the proper format ...");
+    			String msg = "Input data is not in the proper format ...";
+    			logger.error(msg);
+//    			InteractionManagement.sendInteraction(user, interactionType, objectId, value, 
+//				relevanceValue, errorId, errorType, additionalInformation);
+    			InteractionManagement.sendInteraction("dkt-usage@"+request.getRemoteAddr(), "error", "e-Sesame/storeData", "Input data is not in the proper format ...", 
+    					"", "Exception", msg, "");
+    			throw new BadRequestException(msg);
     		}
+    		
+//			InteractionManagement.sendInteraction(user, interactionType, objectId, value, relevanceValue, errorId, errorType, additionalInformation);
+    		InteractionManagement.sendInteraction("dkt-usage@"+request.getRemoteAddr(), "usage", "e-Sesame/storeData", "Success", "", "", "", "");
+			
            	return ResponseGenerator.successResponse(nifResult, "text/plain");
         } catch (BadRequestException e) {
         	logger.error(e.getMessage());
@@ -90,6 +106,7 @@ public class ESesameServiceStandAlone extends BaseRestController {
 	
 	@RequestMapping(value = "/e-sesame/retrieveData", method = { RequestMethod.POST, RequestMethod.GET })
 	public ResponseEntity<String> retrieveData(
+			HttpServletRequest request,
 			@RequestParam(value = "input", required = false) String input,
 			@RequestParam(value = "i", required = false) String i,
 			@RequestParam(value = "informat", required = false) String informat,
@@ -119,8 +136,11 @@ public class ESesameServiceStandAlone extends BaseRestController {
     				return ResponseGenerator.successResponse(nifResult, outformat);
     			}
     			else{
-        			logger.error("Input triple is NULL");
-        			throw new BadRequestException("Input triple is NULL");
+        			String msg = "Input triple is NULL";
+        			logger.error(msg);
+        			InteractionManagement.sendInteraction("dkt-usage@"+request.getRemoteAddr(), "error", "e-Sesame/retrieveData", "Input data is not in the proper format ...", 
+        					"", "Exception", msg, "");
+        			throw new BadRequestException(msg);
     			}
         	}
         	else{
@@ -136,8 +156,11 @@ public class ESesameServiceStandAlone extends BaseRestController {
                     //inModel = rdfConversionService.unserializeRDF(nifParameters.getInput(), nifParameters.getInformat());
                 	textForProcessing = postBody;
                     if (textForProcessing == null) {
-                        logger.error("No text to process.");
-                        throw new BadRequestException("No text to process.");
+            			String msg = "No text to process.";
+            			logger.error(msg);
+            			InteractionManagement.sendInteraction("dkt-usage@"+request.getRemoteAddr(), "error", "e-Sesame/retrieveData", "Input data is not in the proper format ...", 
+            					"", "Exception", msg, "");
+            			throw new BadRequestException(msg);
                     }
                 }
             	String nifResult = null;
@@ -151,9 +174,13 @@ public class ESesameServiceStandAlone extends BaseRestController {
         			nifResult = service.retrieveEntitiesFromSPARQL(storageName, storagePath, textForProcessing, outformat);
         		}
         		else{
-        			logger.error("Input data is not in the proper format ...");
-        			throw new BadRequestException("Input data is not in the proper format ...");
+        			String msg = "Input data is not in the proper format ...";
+        			logger.error(msg);
+        			InteractionManagement.sendInteraction("dkt-usage@"+request.getRemoteAddr(), "error", "e-Sesame/retrieveData", "Input data is not in the proper format ...", 
+        					"", "Exception", msg, "");
+        			throw new BadRequestException(msg);
         		}
+        		InteractionManagement.sendInteraction("dkt-usage@"+request.getRemoteAddr(), "usage", "e-Sesame/retrieveData", "Success", "", "", "", "");
                	return ResponseGenerator.successResponse(nifResult, outformat);
         	}
         } catch (BadRequestException e) {

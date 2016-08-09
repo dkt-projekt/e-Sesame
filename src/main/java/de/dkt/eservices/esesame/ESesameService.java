@@ -57,7 +57,7 @@ public class ESesameService {
 			storageLocation = "C:/tests/sesame/";
 		}
 		else if(OS.startsWith("Linux")){
-			storageLocation = "/opt/tmp/storage/sesameStorage/";
+			storageLocation = "/opt/storage/sesameStorage/";
 		}
 		SesameStorage.setStorageDirectory(storageLocation);
 	}
