@@ -2,7 +2,7 @@
 
 The e-Sesame module performs storage and retrieval of semantic information. It is a triple storage system that allows users to store and retrieve semantic information and even develop reasoning through its SPARQL interface.
 
-**Please note** that in order to install and use this module, the code expects a folder for storage that has to be created manually. The location of this folder must be `/opt/tmp/storage/sesameStorage` and full reading and writing rights have to be assigned to it (e.g. `chmod 777 /opt/tmp/storage/sesameStorage`).
+**Please note** that in order to install and use this module, the code expects a folder for storage that has to be created manually. The location of this folder must be `/opt/storage/sesameStorage` and full reading and writing rights have to be assigned to it (e.g. `chmod 775 /opt/storage/sesameStorage`).
 
 ## Storage of semantic information
 
@@ -91,5 +91,5 @@ If the `inputDataType` is `triple`: the service will retrieve triples that fit o
 A JSON string containing the retrieved triples.
 
 Example cURL post for using the `semantic information storage`:  
-`curl -X POST "http://api.digitale-kuratierung.de/api/e-sesame/retrieveData?storageName=sesame2&inputDataType=entity&input=Mendelsohn."`
+`curl -X POST "http://api.digitale-kuratierung.de/api/e-sesame/retrieveData?storageName=sesame2&inputDataType=triple&subject="`
 
