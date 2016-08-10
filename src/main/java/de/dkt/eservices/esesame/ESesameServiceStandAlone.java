@@ -121,15 +121,19 @@ public class ESesameServiceStandAlone extends BaseRestController {
 
 			@RequestParam(value = "storageName", required = false) String storageName,
 			@RequestParam(value = "storagePath", required = false) String storagePath,
-			@RequestParam(value = "inputDataType", required = false) String inputDataType,
+			@RequestParam(value = "inputDataFormat", required = false) String inputDataFormat,
 			@RequestParam(value = "subject", required = false) String subj,
 			@RequestParam(value = "predicate", required = false) String pred,
 			@RequestParam(value = "object", required = false) String obj,
             @RequestBody(required = false) String postBody) throws Exception {
 		ParameterChecker.checkNotNullOrEmpty(storageName, "storage Name", logger);
+		ParameterChecker.checkNotNullOrEmpty(inputDataFormat, "inputDataFormat", logger);
         
         try {
-    		if(inputDataType.equalsIgnoreCase("triple")){
+        	if(outformat==null || outformat.equalsIgnoreCase("")){
+        		outformat="application/rdf+xml";
+        	}
+    		if(inputDataFormat.equalsIgnoreCase("triple")){
     			if(subj!=null || pred!=null || obj!=null){
     				String nifResult = service.retrieveEntitiesFromTriplet(storageName, storagePath, subj, pred, obj, outformat);
     				System.out.println("NIF RESULT: "+nifResult);
@@ -144,7 +148,7 @@ public class ESesameServiceStandAlone extends BaseRestController {
     			}
         	}
         	else{
-        		ParameterChecker.checkNotNullOrEmpty(inputDataType, "input data type", logger);
+        		ParameterChecker.checkNotNullOrEmpty(inputDataFormat, "input data type", logger);
                 NIFParameterSet nifParameters = this.normalizeNif(input, acceptHeader, contentTypeHeader, allParams, true);
                 String textForProcessing = null;
 
@@ -164,13 +168,13 @@ public class ESesameServiceStandAlone extends BaseRestController {
                     }
                 }
             	String nifResult = null;
-        		if(inputDataType.equalsIgnoreCase("NIF")){
+        		if(inputDataFormat.equalsIgnoreCase("NIF")){
         			nifResult = service.retrieveEntitiesFromNIF(storageName, storagePath, textForProcessing, outformat);
         		}
-        		else if(inputDataType.equalsIgnoreCase("entity")){
+        		else if(inputDataFormat.equalsIgnoreCase("entity")){
         			nifResult = service.retrieveEntitiesFromString(storageName, storagePath, textForProcessing, outformat);
         		}
-        		else if(inputDataType.equalsIgnoreCase("sparql")){
+        		else if(inputDataFormat.equalsIgnoreCase("sparql")){
         			nifResult = service.retrieveEntitiesFromSPARQL(storageName, storagePath, textForProcessing, outformat);
         		}
         		else{

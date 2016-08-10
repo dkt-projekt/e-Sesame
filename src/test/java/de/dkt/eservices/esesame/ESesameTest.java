@@ -109,37 +109,19 @@ public class ESesameTest {
 	@Test
 	public void test3_StoreStringLocalFilesystemStorage() throws UnirestException, IOException,Exception {
 		
-//		HttpResponse<String> response = storageRequest()
-//				.queryString("informat", "text")
-//				.queryString("outformat", "turtle")
-//				.queryString("storageName", "test3")
-//				.queryString("storagePath", indexPath)
-//				.queryString("storageCreate", true)
-//				.queryString("input", TestConstants.inputData)
-//				.queryString("inputDataFormat", "param")
-//				.queryString("inputDataMimeType", "text/turtle")
-//				.asString();
-//		assertTrue(response.getStatus() == 200);
-//		assertTrue(response.getBody().length() > 0);
-
-		HttpResponse<String> response2 = storageRequest()
-//				.queryString("informat", "text")
-//				.queryString("outformat", "turtle")
-				.queryString("storageName", "sesame2")
-//				.queryString("storagePath", indexPath)
+		HttpResponse<String> response = storageRequest()
+				.queryString("informat", "text")
+				.queryString("outformat", "turtle")
+				.queryString("storageName", "test3")
+				.queryString("storagePath", indexPath)
 				.queryString("storageCreate", true)
 				.queryString("input", TestConstants.inputData)
 				.queryString("inputDataFormat", "param")
-				.queryString("inputDataMimeType", "text")
-				.body(TestConstants.inputData)
+				.queryString("inputDataMimeType", "text/turtle")
 				.asString();
-
-		//?storageName=sesame2&inputDataFormat=param&inputDataMimeType=text&input=Welcome+to+Berlin+in+2016."
+		assertTrue(response.getStatus() == 200);
+		assertTrue(response.getBody().length() > 0);
 		
-		assertTrue(response2.getStatus() == 200);
-		assertTrue(response2.getBody().length() > 0);
-		
-		System.out.println(response2.getBody());
 	}
 
 	@Test
@@ -269,13 +251,13 @@ public class ESesameTest {
 		
 		HttpResponse<String> response = retrievalRequest()
 //				.queryString("informat", "text/plain")
-				.queryString("input", "http://de.dkt.sesame/ontology/doc1")
+//				.queryString("input", "http://de.dkt.sesame/ontology/doc1")
 //				.queryString("outformat", "text/turtle")
-				.queryString("outformat", "application/rdf+xml")
+//				.queryString("outformat", "application/rdf+xml")
 				.queryString("storageName", "test2")
 //				.queryString("storagePath", "storage")
 				.queryString("inputDataFormat", "triple")
-				.queryString("inputData", "")
+//				.queryString("inputData", "")
 				.queryString("subject", "http://de.dkt.sesame/ontology/doc1")
 //				.queryString("object", "http://de.dkt.sesame/ontology/doc2")
 //				.queryString("predicate", "http://de.dkt.sesame/ontology/mentions")
@@ -287,37 +269,37 @@ public class ESesameTest {
 
 		System.out.println("BODY OUTPUT: "+response.getBody());
 		
-		response = retrievalRequest()
-				.queryString("informat", "text/plain")
-				.queryString("input", "")
-				.queryString("outformat", "application/rdf+xml")
-				.queryString("storageName", "test2")
-				.queryString("storagePath", "storage")
-				.queryString("inputDataType", "triple")
-				.queryString("inputData", "")
-//				.queryString("subject", "http://de.dkt.sesame/ontology/doc1")
-				.queryString("object", "http://de.dkt.sesame/ontology/doc2")
-//				.queryString("predicate", "http://de.dkt.sesame/ontology/mentions")
-				.asString();
-		Assert.assertEquals(response.getStatus(), 200);
-		assertTrue(response.getBody().length() > 0);
-		Assert.assertEquals(expectedOutput,response.getBody());
-
-		response = retrievalRequest()
-				.queryString("informat", "text/plain")
-				.queryString("input", "")
-				.queryString("outformat", "application/rdf+xml")
-				.queryString("storageName", "test2")
-				.queryString("storagePath", "storage")
-				.queryString("inputDataType", "triple")
-				.queryString("inputData", "")
-//				.queryString("subject", "http://de.dkt.sesame/ontology/doc1")
+//		response = retrievalRequest()
+//				.queryString("informat", "text/plain")
+//				.queryString("input", "")
+//				.queryString("outformat", "application/rdf+xml")
+//				.queryString("storageName", "test2")
+//				.queryString("storagePath", "storage")
+//				.queryString("inputDataType", "triple")
+//				.queryString("inputData", "")
+////				.queryString("subject", "http://de.dkt.sesame/ontology/doc1")
 //				.queryString("object", "http://de.dkt.sesame/ontology/doc2")
-				.queryString("predicate", "http://de.dkt.sesame/ontology/mentions")
-				.asString();
-		Assert.assertEquals(response.getStatus(), 200);
-		assertTrue(response.getBody().length() > 0);
-		Assert.assertEquals(expectedOutput,response.getBody());
+////				.queryString("predicate", "http://de.dkt.sesame/ontology/mentions")
+//				.asString();
+//		Assert.assertEquals(response.getStatus(), 200);
+//		assertTrue(response.getBody().length() > 0);
+//		Assert.assertEquals(expectedOutput,response.getBody());
+//
+//		response = retrievalRequest()
+//				.queryString("informat", "text/plain")
+//				.queryString("input", "")
+//				.queryString("outformat", "application/rdf+xml")
+//				.queryString("storageName", "test2")
+//				.queryString("storagePath", "storage")
+//				.queryString("inputDataType", "triple")
+//				.queryString("inputData", "")
+////				.queryString("subject", "http://de.dkt.sesame/ontology/doc1")
+////				.queryString("object", "http://de.dkt.sesame/ontology/doc2")
+//				.queryString("predicate", "http://de.dkt.sesame/ontology/mentions")
+//				.asString();
+//		Assert.assertEquals(response.getStatus(), 200);
+//		assertTrue(response.getBody().length() > 0);
+//		Assert.assertEquals(expectedOutput,response.getBody());
 
 	}
 
@@ -426,7 +408,7 @@ public class ESesameTest {
 				.queryString("outformat", "application/rdf+xml")
 				.queryString("storageName", "test2")
 				.queryString("storagePath", "storage")
-				.queryString("inputDataType", "sparql")
+				.queryString("inputDataFormat", "sparql")
 				.queryString("inputData", "")
 //				.queryString("subject", "")
 //				.queryString("object", "http://de.dkt.sesame/ontology/doc2")
@@ -496,7 +478,7 @@ public class ESesameTest {
 				.queryString("outformat", "application/rdf+xml")
 				.queryString("storageName", "test2")
 				.queryString("storagePath", "storage")
-				.queryString("inputDataType", "NIF")
+				.queryString("inputDataFormat", "NIF")
 				.queryString("inputData", "")
 //				.queryString("subject", "")
 //				.queryString("object", "http://de.dkt.sesame/ontology/doc2")
