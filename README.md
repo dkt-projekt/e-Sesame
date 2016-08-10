@@ -91,5 +91,5 @@ If the `inputDataType` is `triple`: the service will retrieve triples that fit o
 A JSON string containing the retrieved triples.
 
 Example cURL post for using the `semantic information storage`:  
-`curl -X POST "http://api.digitale-kuratierung.de/api/e-sesame/retrieveData?storageName=sesame2&inputDataType=triple&subject="`
+`curl -X POST "http://dev.digitale-kuratierung.de/api/e-sesame/retrieveData?storageName=sesame2&inputDataFormat=triple&object=%3Chttp://dbpedia.org/ontology/Location%3E"`
 
