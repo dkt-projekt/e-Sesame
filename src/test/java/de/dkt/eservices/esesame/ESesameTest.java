@@ -30,7 +30,6 @@ public class ESesameTest {
 
 	TestHelper testHelper;
 	ValidationHelper validationHelper;
-	String indexPath = "";
 	
 	@Before
 	public void setup() {
@@ -38,18 +37,6 @@ public class ESesameTest {
 				.getContext(TestConstants.pathToPackage);
 		testHelper = context.getBean(TestHelper.class);
 		validationHelper = context.getBean(ValidationHelper.class);
-		
-		String OS = System.getProperty("os.name");
-		if(OS.startsWith("Mac")){
-			indexPath = "/Users/jumo04/Documents/DFKI/DKT/dkt-test/testTimelining/sesameStorage/";
-		}
-		else if(OS.startsWith("Windows")){
-			indexPath = "C:/tests/luceneindexes/";
-		}
-		else if(OS.startsWith("Linux")){
-			indexPath = "/home/sabine/Schreibtisch/test/";
-			
-		}
 	}
 	
 	private HttpRequestWithBody baseRequest() {
@@ -110,10 +97,10 @@ public class ESesameTest {
 	public void test3_StoreStringLocalFilesystemStorage() throws UnirestException, IOException,Exception {
 		
 		HttpResponse<String> response = storageRequest()
-				.queryString("informat", "text")
+				.queryString("informat", "turtle")
 				.queryString("outformat", "turtle")
 				.queryString("storageName", "test3")
-				.queryString("storagePath", indexPath)
+//				.queryString("storagePath", indexPath)
 				.queryString("storageCreate", true)
 				.queryString("input", TestConstants.inputData)
 				.queryString("inputDataFormat", "param")
