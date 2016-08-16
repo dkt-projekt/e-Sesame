@@ -101,6 +101,7 @@ public class SesameStorage {
 
 	@SuppressWarnings("all")
 	public static String storeTriplets(String storageName, String data, String dataFormat) throws ExternalServiceFailedException {
+		Repository rep = null; 
 		try {
 			File f = null;
 			if(storageCreate){
@@ -109,7 +110,7 @@ public class SesameStorage {
 			else{
 				f = FileFactory.generateFileInstance(storageDirectory + storageName);
 			}			
-			Repository rep = new SailRepository(new NativeStore(f));
+			rep = new SailRepository(new NativeStore(f));
 			rep.initialize();
 
 			Model inputModel;
@@ -141,8 +142,21 @@ public class SesameStorage {
 			throw new BadRequestException(e.getMessage());
 		}
 		catch(IOException e){
-			logger.error(e.getMessage());
-			throw new BadRequestException(e.getMessage());
+			String msg = "";
+			if(storageCreate){
+				msg = "No storageCreate parameter stablish and ";
+			}
+			msg += e.getMessage();
+			logger.error(msg);
+			throw new BadRequestException(msg);
+		}
+		finally{
+			try {
+				rep.shutDown();
+			} catch (RepositoryException e) {
+				logger.error(e.getMessage());
+				throw new ExternalServiceFailedException("Error at stoping the sesame repository");
+			}
 		}
 	}
 

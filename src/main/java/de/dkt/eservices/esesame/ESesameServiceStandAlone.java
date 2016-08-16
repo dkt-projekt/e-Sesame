@@ -48,7 +48,7 @@ public class ESesameServiceStandAlone extends BaseRestController {
 			HttpServletRequest request,
 			@RequestParam(value = "storageName", required = false) String storageName,
 			@RequestParam(value = "storagePath", required = false) String storagePath,
-			@RequestParam(value = "storageCreate", required = false) boolean storageCreate,
+//			@RequestParam(value = "storageCreate", required = false) boolean storageCreate,
 			@RequestParam(value = "inputDataFormat", required = false) String inputDataFormat,
 			@RequestParam(value = "inputDataMimeType", required = false) String inputDataMimeType,
 			@RequestParam(value = "input", required = false) String input,
@@ -60,8 +60,8 @@ public class ESesameServiceStandAlone extends BaseRestController {
 		ParameterChecker.checkNotNullOrEmpty(inputDataFormat, "input data format", logger);
 		ParameterChecker.checkNotNullOrEmpty(inputDataMimeType, "input data type", logger);
 		ParameterChecker.checkNotNullOrEmpty(storageName, "storage Name", logger);
-
         try {
+        	boolean storageCreate = true;
         	String nifResult = null;
     		if(inputDataFormat.equalsIgnoreCase("triple")){
             	if(subj!=null && pred!=null && obj!=null){
@@ -69,9 +69,8 @@ public class ESesameServiceStandAlone extends BaseRestController {
             	}
         		else{
         			String msg = "Input triple is NULL";
+        			InteractionManagement.sendInteraction("dkt-usage@"+request.getRemoteAddr(), "error", "e-Sesame/storeData", msg, "", "Exception", msg, "");
         			logger.error(msg);
-        			InteractionManagement.sendInteraction("dkt-usage@"+request.getRemoteAddr(), "error", "e-Sesame/storeData", "Input data is not in the proper format ...", 
-        					"", "Exception", msg, "");
         			throw new BadRequestException(msg);
         		}
     		}
@@ -84,14 +83,10 @@ public class ESesameServiceStandAlone extends BaseRestController {
     		else{
     			String msg = "Input data is not in the proper format ...";
     			logger.error(msg);
-//    			InteractionManagement.sendInteraction(user, interactionType, objectId, value, 
-//				relevanceValue, errorId, errorType, additionalInformation);
-    			InteractionManagement.sendInteraction("dkt-usage@"+request.getRemoteAddr(), "error", "e-Sesame/storeData", "Input data is not in the proper format ...", 
-    					"", "Exception", msg, "");
+    			InteractionManagement.sendInteraction("dkt-usage@"+request.getRemoteAddr(), "error", "e-Sesame/storeData", msg,"", "Exception", msg, "");
     			throw new BadRequestException(msg);
     		}
     		
-//			InteractionManagement.sendInteraction(user, interactionType, objectId, value, relevanceValue, errorId, errorType, additionalInformation);
     		InteractionManagement.sendInteraction("dkt-usage@"+request.getRemoteAddr(), "usage", "e-Sesame/storeData", "Success", "", "", "", "");
 			
            	return ResponseGenerator.successResponse(nifResult, "text/plain");

@@ -1,6 +1,7 @@
 package de.dkt.eservices.esesame;
 
 import java.io.File;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -9,12 +10,15 @@ import org.openrdf.model.Literal;
 import org.openrdf.model.Model;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
+import org.openrdf.model.Value;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.impl.LinkedHashModel;
 import org.openrdf.model.impl.ValueFactoryImpl;
 import org.springframework.stereotype.Component;
 
 import com.hp.hpl.jena.rdf.model.ModelFactory;
+import com.hp.hpl.jena.rdf.model.RDFNode;
+import com.hp.hpl.jena.rdf.model.StmtIterator;
 
 import de.dkt.common.niftools.DBO;
 import de.dkt.common.niftools.DKTNIF;
@@ -110,185 +114,38 @@ public class ESesameService {
             		jenaModel = rdfConversionService.unserializeRDF(inputText, RDFSerialization.fromValue(inputDataMimeType));
         		}
         		catch(Exception e){
-        			System.out.println("input doesn't match input type");
+        			String msg = "Exception: input doesn't match input type";
+        			System.out.println(msg);
+        			logger.error(msg);
+        			throw new BadRequestException(msg);
             		//jenaModel = rdfConversionService.unserializeRDF(inputText, RDFSerialization.TURTLE);
         		}
 
-        		String docURI = NIFReader.extractDocumentURI(jenaModel);
-        		
-        		Map<String,Map<String,String>> list2 = NIFReader.extractEntitiesExtended(jenaModel);
-        		Map<String,String> docList = NIFReader.extractDocumentInformation(jenaModel);
-        		
                 Model openrdfModel = new LinkedHashModel(); 
                 ValueFactory factory = ValueFactoryImpl.getInstance();
-                URI doc = factory.createURI(docURI);
-                URI mentions = factory.createURI("http://dkt.dfki.de/mentions");
-                URI isMentioned = factory.createURI("http://dkt.dfki.de/isMentioned");
-                URI hasText = factory.createURI("http://dkt.dfki.de/hasText");
-                URI isTypeOf = factory.createURI("http://dkt.dfki.de/isTypeOf");
-                URI hasType = factory.createURI("http://dkt.dfki.de/hasType");
-                URI hasBirthDate = factory.createURI("http://dkt.dfki.de/hasBirthDate");
-                URI hasDeathDate = factory.createURI("http://dkt.dfki.de/hasDeathDate");
-                URI hasOrganizationType = factory.createURI("http://dkt.dfki.de/hasOrganizationType");
-                URI hasIntervalStarts = factory.createURI(TIME.intervalStarts.getURI());
-                URI hasIntervalFinishes = factory.createURI(TIME.intervalFinishes.getURI());
-                URI hasExternalLink = factory.createURI("http://dkt.dfki.de/hasExternalLink");
-                URI isExternalLinkOf = factory.createURI("http://dkt.dfki.de/isExternalLinkOf");
-                URI hasMeanDateStart = factory.createURI(DKTNIF.meanDateStart.getURI());
-                URI hasMeanDateEnd = factory.createURI(DKTNIF.meanDateEnd.getURI());
-                //URI hasCentralGeoPoint = factory.createURI("http://dkt.dfki.de/hasCentralGeoPoint");
-                URI hasLatitudeAverage = factory.createURI(DKTNIF.averageLatitude.getURI());
-                URI hasLongitudeAverage = factory.createURI(DKTNIF.averageLongitude.getURI());
-                URI hasLatitude = factory.createURI(GEO.latitude.getURI());
-                URI hasLongitude = factory.createURI(GEO.longitude.getURI());
-                URI hasLatitudeStandardDevs = factory.createURI(DKTNIF.standardDeviationLatitude.getURI());
-                URI hasLongitudeStandardDevs = factory.createURI(DKTNIF.standardDeviationLongitude.getURI());
-
-                if(docList!=null){
-                	Set<String> keys = docList.keySet();
-                	for (String k : keys) {
-                		/*
-                    	if(k.equalsIgnoreCase(NIF.centralGeoPoint.getURI())){
-		                    Literal literalText = factory.createLiteral(docList.get(k));
-		                    Statement st1 = factory.createStatement(doc, hasCentralGeoPoint, literalText);
-		                	openrdfModel.add(st1);
-                    	}
-                    	*/
-                    	if(k.equalsIgnoreCase(DKTNIF.averageLatitude.getURI())){
-                    		Literal literalText = factory.createLiteral(docList.get(k));
-		                    Statement st1 = factory.createStatement(doc, hasLatitudeAverage, literalText);
-		                	openrdfModel.add(st1);
-                    	}
-                    	else if(k.equalsIgnoreCase(DKTNIF.averageLongitude.getURI())){
-                    		Literal literalText = factory.createLiteral(docList.get(k));
-		                    Statement st1 = factory.createStatement(doc, hasLongitudeAverage, literalText);
-		                	openrdfModel.add(st1);
-                    	}
-                    	/*
-                    	else if(k.equalsIgnoreCase(NIF.geoStandardDevs.getURI())){
-		                    Literal literalText = factory.createLiteral(docList.get(k));
-		                    Statement st1 = factory.createStatement(doc, hasGeoStandardDevs, literalText);
-		                	openrdfModel.add(st1);
-                    	}
-                    	*/
-                    	else if(k.equalsIgnoreCase(DKTNIF.standardDeviationLatitude.getURI())){
-		                    Literal literalText = factory.createLiteral(docList.get(k));
-		                    Statement st1 = factory.createStatement(doc, factory.createURI(DKTNIF.standardDeviationLatitude.getURI()), literalText);
-		                	openrdfModel.add(st1);
-                    	}
-                    	else if(k.equalsIgnoreCase(DKTNIF.standardDeviationLongitude.getURI())){
-		                    Literal literalText = factory.createLiteral(docList.get(k));
-		                    Statement st1 = factory.createStatement(doc, hasLongitudeStandardDevs, literalText);
-		                	openrdfModel.add(st1);
-                    	}
-                    	else if(k.equalsIgnoreCase(DKTNIF.meanDateStart.getURI())){
-		                    Literal literalText = factory.createLiteral(docList.get(k));
-		                    Statement st1 = factory.createStatement(doc, hasMeanDateStart, literalText);
-		                	openrdfModel.add(st1);
-                    	}
-                    	else if(k.equalsIgnoreCase(DKTNIF.meanDateEnd.getURI())){
-		                    Literal literalText = factory.createLiteral(docList.get(k));
-		                    Statement st1 = factory.createStatement(doc, hasMeanDateEnd, literalText);
-		                	openrdfModel.add(st1);
-                    	}
-                    	else if(k.equalsIgnoreCase(TIME.intervalStarts.getURI())){
-		                    Literal literalText = factory.createLiteral(docList.get(k));
-		                    Statement st1 = factory.createStatement(doc, hasIntervalStarts, literalText);
-		                	openrdfModel.add(st1);
-                    	}
-                    	else if(k.equalsIgnoreCase(TIME.intervalFinishes.getURI())){
-                    		Literal literalText = factory.createLiteral(docList.get(k));
-                    		Statement st1 = factory.createStatement(doc, hasIntervalFinishes, literalText);
-		                	openrdfModel.add(st1);
-                    	}
-                    	else if(k.equalsIgnoreCase(NIF.isString.getURI())){
-		                    Literal literalText = factory.createLiteral(docList.get(k));
-		                    Statement st1 = factory.createStatement(doc, hasText, literalText);
-		                	openrdfModel.add(st1);
-                    	}
-                	}
-                }
-                
-                if(list2!=null){
-                	Set<String> keys = list2.keySet();
-                	for (String k : keys) {
-						Map<String,String> map = list2.get(k);
-						
-	                    URI entURI = factory.createURI(k);
-	                    
-	                    Set<String> keys2 = map.keySet();
-	                    for (String k2 : keys2) {
-							
-	                    	if(k2.equalsIgnoreCase(NIF.anchorOf.getURI())){
-			                    Literal entityText = factory.createLiteral(map.get(k2));
-			                    Statement st1 = factory.createStatement(entURI, hasText, entityText);
-			                	openrdfModel.add(st1);
-	                    	}
-	                    	else if(k2.equalsIgnoreCase(DBO.birthDate.getURI())){
-	                    		NIFWriter.addPrefixToModel(jenaModel, "dbo", DBO.uri);
-			                    Literal text = factory.createLiteral(map.get(k2));
-			                    Statement st1 = factory.createStatement(entURI, hasBirthDate, text);
-			                	openrdfModel.add(st1);
-	                    	}
-	                    	else if(k2.equalsIgnoreCase(DBO.deathDate.getURI())){
-	                    		NIFWriter.addPrefixToModel(jenaModel, "dbo", DBO.uri);
-			                    Literal text = factory.createLiteral(map.get(k2));
-			                    Statement st1 = factory.createStatement(entURI, hasDeathDate, text);
-			                	openrdfModel.add(st1);
-	                    	}
-	                    	else if(k2.equalsIgnoreCase(NIF.orgType.getURI())){
-			                    Literal text = factory.createLiteral(map.get(k2));
-			                    Statement st1 = factory.createStatement(entURI, hasOrganizationType, text);
-			                	openrdfModel.add(st1);
-	                    	}
-	                    	else if(k2.equalsIgnoreCase(GEO.latitude.getURI())){
-	                    		NIFWriter.addPrefixToModel(jenaModel, "geo", GEO.uri);
-			                    Literal text = factory.createLiteral(map.get(k2));
-			                    Statement st1 = factory.createStatement(entURI, hasLatitude, text);
-			                	openrdfModel.add(st1);
-	                    	}
-	                    	else if(k2.equalsIgnoreCase(GEO.longitude.getURI())){
-	                    		NIFWriter.addPrefixToModel(jenaModel, "geo", GEO.uri);
-			                    Literal text = factory.createLiteral(map.get(k2));
-			                    Statement st1 = factory.createStatement(entURI, hasLongitude, text);
-			                	openrdfModel.add(st1);
-	                    	}
-	                    	else if(k2.equalsIgnoreCase(NIF.entity.getURI())){
-			                    URI uri = factory.createURI(map.get(k2));
-		                    	Statement st4 = factory.createStatement(entURI, isTypeOf, uri);
-		                    	openrdfModel.add(st4);
-		                    	Statement st5 = factory.createStatement(uri, hasType, entURI);
-		                    	openrdfModel.add(st5);
-	                    	}
-	                    	else if(k2.equalsIgnoreCase(ITSRDF.taIdentRef.getURI())){
-			                    URI uri = factory.createURI(map.get(k2));
-		                    	Statement st4 = factory.createStatement(entURI, hasExternalLink, uri);
-		                    	openrdfModel.add(st4);
-		                    	Statement st5 = factory.createStatement(uri, isExternalLinkOf, entURI);
-		                    	openrdfModel.add(st5);
-	                    	}
-						}
-	                    if(entURI!=null && doc!=null){
-	                    	Statement st2 = factory.createStatement(doc, mentions, entURI);
-	                    	openrdfModel.add(st2);
-	                    	Statement st3 = factory.createStatement(entURI, isMentioned, doc);
-	                    	openrdfModel.add(st3);
-	                    }
-					}
-	//                return null;
-	           		nifResult = SesameStorage.storeTripletsFromModel(storageName, openrdfModel);
-                }
-                else{
-                	nifResult = inputText;
-                }
+        		StmtIterator it = jenaModel.listStatements();
+        		while(it.hasNext()){
+        			com.hp.hpl.jena.rdf.model.Statement st = it.next();
+                    URI sub = factory.createURI(st.getSubject().getURI());
+                    URI predicate = factory.createURI(st.getPredicate().getURI());
+                    RDFNode node = st.getObject();
+                    Value obj = null;
+                    if(node.isLiteral()){
+                    	obj = factory.createLiteral(node.asLiteral().getString());
+                    }
+                    else{
+                    	obj = factory.createURI(node.asResource().getURI());
+                    }
+        			Statement st2 = factory.createStatement(sub, predicate, obj); 
+//            		Literal literalText = factory.createLiteral(docList.get(k));
+                	openrdfModel.add(st2);
+        		}
+        		
+        		nifResult = SesameStorage.storeTripletsFromModel(storageName, openrdfModel);
         	}
         	else{
            		nifResult = SesameStorage.storeTriplets(storageName, inputText, inputDataMimeType);
         	}
-//       		nifResult = inputText;
-
-       		//TODO ???
-       		
        		return nifResult;
         } catch (BadRequestException e) {
         	logger.error(e.getMessage());
