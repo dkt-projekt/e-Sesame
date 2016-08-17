@@ -41,7 +41,9 @@ If the `inputDataFormat` is `triple`: the information to be stored is given as a
 A string specifying that the model has been correctly stored.
 
 Example cURL post for using the `semantic information storage`:  
->curl -X POST -H "Cache-Control: no-cache" -H "Postman-Token: 13812b74-6407-ac06-7efe-13517f676a13" -d '@prefix dktnif: <http://dkt.dfki.de/ontologies/nif#> .
+
+```
+curl -X POST -H "Cache-Control: no-cache" -H "Postman-Token: 13812b74-6407-ac06-7efe-13517f676a13" -d '@prefix dktnif: <http://dkt.dfki.de/ontologies/nif#> .
 @prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
 @prefix itsrdf: <http://www.w3.org/2005/11/its/rdf#> .
@@ -59,7 +61,7 @@ Example cURL post for using the `semantic information storage`:
         nif:beginIndex  "0"^^xsd:nonNegativeInteger ;
         nif:endIndex    "26"^^xsd:nonNegativeInteger ;
         nif:isString    "Welcome to Berlin in 2016."^^xsd:string .' "http://dev.digitale-kuratierung.de/api/e-sesame/storeData?storageName=sesame2&inputDataFormat=body&inputDataMimeType=text/turtle&storageCreate=true"
-
+```
 
 ## Retrieval of semantic information
 
