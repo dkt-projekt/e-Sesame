@@ -90,6 +90,14 @@ If the `inputDataType` is `triple`: the service will retrieve triples that fit o
 ### Output
 A JSON string containing the retrieved triples.
 
-Example cURL post for using the `semantic information storage`:  
-`curl -X POST "http://dev.digitale-kuratierung.de/api/e-sesame/retrieveData?storageName=sesame2&inputDataFormat=triple&object=%3Chttp://dbpedia.org/ontology/Location%3E"`
+Example cURL using inputDataType sparql to retrieve all triples in the triple storage:
 
+```
+curl -X GET -d '' "http://dev.digitale-kuratierung.de/api/e-sesame/retrieveData?storageName=jan-test&inputDataFormat=sparql&input=SELECT%20%24s%20%24p%20%24o%20WHERE%20%7B%20%24s%20%24p%20%24o%20%7D&informat=text/plain"
+```
+
+Example cURL using inputDataType triple to retrieve all resources that are a nif:Context:
+
+```
+curl -X GET -d '' "http://dev.digitale-kuratierung.de/api/e-sesame/retrieveData?storageName=jan-test&inputDataFormat=triple&object=http%3A%2F%2Fpersistence.uni-leipzig.org%2Fnlp2rdf%2Fontologies%2Fnif-core%23Context&outformat=text/turtle"
+```
