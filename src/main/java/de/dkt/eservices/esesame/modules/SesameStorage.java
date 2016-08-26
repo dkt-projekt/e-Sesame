@@ -324,7 +324,8 @@ public class SesameStorage {
 				TupleQuery tupleQuery = conn.prepareTupleQuery(QueryLanguage.SPARQL, inputSPARQLData);
 //				tupleQuery.evaluate(jsonWriter);
 				tupleQuery.evaluate(xmlWriter);
-				return new String(bos.toByteArray());
+				//return new String(bos.toByteArray());
+				return bos.toString("UTF-8"); // PB: trying this for encoding issue. Works locally, so unfortunately have to commit to test
 			}
 			finally{
 				conn.close();
