@@ -10,7 +10,7 @@ The Storage of semantic information endpoint allows to store information provide
 
 ### Endpoint
 
-http://api.digitale-kuratierung.de/api/e-sesame/storeData
+https://api.digitale-kuratierung.de/api/e-sesame/storeData
 
 ### Input
 The API conforms to the general NIF API specifications. For more details, see: http://persistence.uni-leipzig.org/nlp2rdf/specification/api.html
@@ -60,7 +60,7 @@ curl -X POST -H "Cache-Control: no-cache" -H "Postman-Token: 13812b74-6407-ac06-
         a               nif:RFC5147String , nif:String , nif:Context ;
         nif:beginIndex  "0"^^xsd:nonNegativeInteger ;
         nif:endIndex    "26"^^xsd:nonNegativeInteger ;
-        nif:isString    "Welcome to Berlin in 2016."^^xsd:string .' "http://dev.digitale-kuratierung.de/api/e-sesame/storeData?storageName=sesame2&inputDataFormat=body&inputDataMimeType=text/turtle&storageCreate=true"
+        nif:isString    "Welcome to Berlin in 2016."^^xsd:string .' "https://dev.digitale-kuratierung.de/api/e-sesame/storeData?storageName=sesame2&inputDataFormat=body&inputDataMimeType=text/turtle&storageCreate=true"
 ```
 
 ## Retrieval of semantic information
@@ -69,7 +69,7 @@ The Retrieval of semantic information endpoint offers different ways of accessin
 
 ### Endpoint
 
-http://api.digitale-kuratierung.de/api/e-sesame/retrieveData
+https://api.digitale-kuratierung.de/api/e-sesame/retrieveData
 
 ### Input
 The API conforms to the general NIF API specifications. For more details, see: http://persistence.uni-leipzig.org/nlp2rdf/specification/api.html
@@ -95,11 +95,11 @@ A JSON string containing the retrieved triples.
 Example cURL using inputDataType sparql to retrieve all triples in the triple storage:
 
 ```
-curl -X GET -d '' "http://dev.digitale-kuratierung.de/api/e-sesame/retrieveData?storageName=jan-test&inputDataFormat=sparql&input=SELECT%20%24s%20%24p%20%24o%20WHERE%20%7B%20%24s%20%24p%20%24o%20%7D&informat=text/plain"
+curl -X GET -d '' "https://dev.digitale-kuratierung.de/api/e-sesame/retrieveData?storageName=jan-test&inputDataFormat=sparql&input=SELECT%20%24s%20%24p%20%24o%20WHERE%20%7B%20%24s%20%24p%20%24o%20%7D&informat=text/plain"
 ```
 
 Example cURL using inputDataType triple to retrieve all resources that are a nif:Context:
 
 ```
-curl -X GET -d '' "http://dev.digitale-kuratierung.de/api/e-sesame/retrieveData?storageName=jan-test&inputDataFormat=triple&object=http%3A%2F%2Fpersistence.uni-leipzig.org%2Fnlp2rdf%2Fontologies%2Fnif-core%23Context&outformat=text/turtle"
+curl -X GET -d '' "https://dev.digitale-kuratierung.de/api/e-sesame/retrieveData?storageName=jan-test&inputDataFormat=triple&object=http%3A%2F%2Fpersistence.uni-leipzig.org%2Fnlp2rdf%2Fontologies%2Fnif-core%23Context&outformat=text/turtle"
 ```
